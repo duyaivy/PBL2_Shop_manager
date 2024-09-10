@@ -2,6 +2,7 @@
 #include<iostream>
 #include <iomanip>
 #include<vector>
+#include<conio.h>
 using namespace std;
 
 
@@ -13,16 +14,18 @@ class person{
     string generateID(); 
     static vector<person*> obj;
     public:
-    person(const string _name,const string _phone ,const string _email,const string _pass);
+    person(const string _name ="",const string _phone ="",const string _email="",const string _pass="");
     // ~person();
+    static void clearPerson();
     
-    void display();
-    string getName(person& a); void setName(); 
-    string getID(person& a);  
-    string getPhone(person& a); void setPhone(person& a); 
-    string getEmail(person& a); void setEmail(person& a); 
-    string getPass(person& a); void setPass(person& a); 
-    void printInfor(const person* person);
+    static void display();
+    string getName(); void setName(); 
+    string getID();  
+    string getPhone(); void setPhone(); 
+    string getEmail(); void setEmail(); 
+    string getPass(); void setPass(); string hidenPass();
+    static void setInfor(person &a);
+    static void printInfor(const person* person);
 
 
 };
@@ -34,48 +37,118 @@ string person::generateID() {
         return ss.str();// trả về giá trị
     }
 
-// people.push_back(this);
+// ham dung constructor
 person::person(const string _name,const string _phone ,const string _email,const string _pass){
-    setName();
+    name= _name; phone = _phone;
+    email = _email; pass = _pass;
     personID = generateID();
     obj.push_back(this); 
     
 }
-string person::getName(person& a){
-    return a.name;
+//  ham dung destructor
+void person::clearPerson() {
+    
+    for (person* p : obj) {
+        delete p;  // Delete 
+    }
+    obj.clear();  // Clear the vector
+    obj.shrink_to_fit();  
+    
+}
+// name
+string person::getName(){
+    return name;
 }
 void person::setName(){
-    cout<<"Enter Fullname:"<<endl;
+    cout<<"Enter Fullname:";
     getline(cin,name);
 }; 
-string person::getID(person& a){
-    return a.personID;
+
+// ID
+string person::getID(){
+    return personID;
 }
-string person::getPhone(person& a){
-    return a.phone;
+// phone
+string person::getPhone(){
+    return phone;
 }
-void person::setPhone(person& a){
-    cout<<"Enter Phone number:"<<endl;
-    getline(cin,a.phone);
+void person::setPhone(){
+    cout<<"Enter Phone number:";
+    getline(cin,phone);
 }; 
-string person::getEmail(person& a){
-    return a.email;
+// email
+string person::getEmail(){
+    return email;
 }
-void person::setEmail(person& a){
-    cout<<"Enter Fullname:"<<endl;
-    getline(cin,a.email);
+void person::setEmail(){
+    cout<<"Enter your Email:";
+    getline(cin,email);
 }; 
-string person::getPass(person& a){
-    return a.pass;
+// pass
+// ham hien thi dau * cho pass
+string person::hidenPass() {
+    string password = "";
+    char ch;
+    // Đọc từng ký tự cho đến khi gặp Enter (13)
+    while ((ch = _getch()) != 13) {
+        if (ch == 8) {  // Nếu người dùng nhấn phím Backspace
+            if (!password.empty()) {
+                cout << "\b \b";  
+                password.pop_back();  
+            }
+        } else {
+            password.push_back(ch);  
+            cout << '*';  
+        }
+    }
+    cout << endl;
+    return password;
 }
-void person::setPass(person& a){
-    cout<<"Enter your password:"<<endl;
-    getline(cin,a.pass);
-};
-void person::display(){
+string person::getPass(){
+    return pass;
+}
+// void person::setPass(){
+//     cout<<"Enter your password:";
+//     getline(cin,pass);
+// };
+void person::setPass(){
+    string password, confirmPass;  
+    cout << "Enter password:\t";
+    password = hidenPass();
+    int todo = 1,maxTry = 3;
+
+    while (todo < maxTry) {
+        cout << "Confirm password: ";
+        confirmPass = hidenPass();
+    if (password == confirmPass) {
+            pass = password; // Gán mật khẩu
+            cout << "Password set successfully!" << endl;
+            break;
+        } else {
+            todo++;
+            if (todo < maxTry) {
+                cout << "Passwords do not match. Please try again!" << endl;
+            } else {
+                cout << "Maximum attempts reached. Password not set." << endl;
+            }   
+
+            }
+    }
+}
+ void person::setInfor(person &a){
+    a.setName(); 
+    a.setPhone();
+    a.setEmail();
+ }
+void person::display() {
+    if(obj.empty()){
+        cout<<"The program is NULL"<<endl;
+    }else{
     for (person* person : obj) {
             printInfor(person);
         }
+    }
+    
 }
 void person::printInfor(const person* a)  {
         cout << left << setw(10) << "ID:" << setw(10) << a->personID << endl
