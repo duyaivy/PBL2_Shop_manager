@@ -14,8 +14,8 @@ class person{
     string generateID(); 
     static vector<person*> obj;
     public:
-    person(const string _name ="",const string _phone ="",const string _email="",const string _pass="");
-    // ~person();
+    person(const string _name ="unknown",const string _phone ="unknown",const string _email="unknown",const string _pass="unknown");
+    
     static void clearPerson();
     
     static void display();
