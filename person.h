@@ -30,11 +30,11 @@ class person{
 
 };
 string person::generateID() {
-        // Chuyển nextID thành chuỗi có 7 chữ số, thêm số 0 ở phía trước
+        // Chuy?n nextID th�nh chu?i c� 7 ch? s?, th�m s? 0 ? ph�a tru?c
         stringstream ss;
         ss << setw(7) << setfill('0') << nextID;
-        nextID++; // Tăng nextID lên 1 cho người kế tiếp
-        return ss.str();// trả về giá trị
+        nextID++; // Tang nextID l�n 1 cho ngu?i k? ti?p
+        return ss.str();// tr? v? gi� tr?
     }
 
 // ham dung constructor
@@ -89,9 +89,9 @@ void person::setEmail(){
 string person::hidenPass() {
     string password = "";
     char ch;
-    // Đọc từng ký tự cho đến khi gặp Enter (13)
+    // �?c t?ng k� t? cho d?n khi g?p Enter (13)
     while ((ch = _getch()) != 13) {
-        if (ch == 8) {  // Nếu người dùng nhấn phím Backspace
+        if (ch == 8) {  // N?u ngu?i d�ng nh?n ph�m Backspace
             if (!password.empty()) {
                 cout << "\b \b";  
                 password.pop_back();  
@@ -121,7 +121,7 @@ void person::setPass(){
         cout << "Confirm password: ";
         confirmPass = hidenPass();
     if (password == confirmPass) {
-            pass = password; // Gán mật khẩu
+            pass = password; // G�n m?t kh?u
             cout << "Password set successfully!" << endl;
             break;
         } else {
