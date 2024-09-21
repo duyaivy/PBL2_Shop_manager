@@ -1,14 +1,11 @@
-#include <iostream>
+#include "person.h"
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include <iomanip>
+#include <iostream>
 #include <algorithm>
-#include <regex>  // Thư viện để sử dụng regex
-#include 'person.h'
+#include <conio.h> 
 using namespace std;
-
-
 
 class Customer : public person {
 public:
@@ -22,7 +19,11 @@ public:
 
     static void saveToFile(const vector<Customer*>& customers) {
         ofstream file("customers.csv");
-        for (const Customer* cust : customers) {
+        if (!file) {
+            cerr << "Error opening file for writing.\n";
+            return;
+        }
+        for (Customer* cust : customers) {
             file << cust->getID() << "," << cust->getName() << "," << cust->getPhone() << "," << cust->getEmail() << "," << cust->getPass() << endl;
         }
         file.close();
@@ -30,11 +31,31 @@ public:
 
     static void loadFromFile(vector<Customer*>& customers) {
         ifstream file("customers.csv");
-        string id, name, phone, email, password;
-        while (getline(file, id, ',') && getline(file, name, ',') && getline(file, phone, ',') && getline(file, email, ',') && getline(file, password)) {
+        if (!file) {
+            cerr << "Error opening file for reading.\n";
+            return;
+        }
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string id, name, phone, email, password;
+
+            getline(ss, id, ',');
+            getline(ss, name, ',');
+            getline(ss, phone, ',');
+            getline(ss, email, ',');
+            getline(ss, password);
+
             customers.push_back(new Customer(name, phone, email, password));
         }
         file.close();
+    }
+
+    void display() {
+        cout << setw(10) << getID()
+             << setw(20) << getName()
+             << setw(30) << getEmail()
+             << setw(20) << getPhone() << endl;
     }
 };
 
@@ -45,12 +66,13 @@ public:
     Employee(const string& name, const string& phone, const string& email, const string& role, const string& password)
         : person(name, phone, email, password), role(role) {}
 
-    void display() const override {
-        person::display();
-        cout << "Role: " << role << endl;
+    void display()  {
+        cout << setw(10) << getID()
+             << setw(20) << getName()
+             << setw(30) << getEmail()
+             << setw(20) << getPhone()
+             << setw(15) << role << endl;
     }
-
-    string getRole() const { return role; }
 
     void updateInfo() {
         setPhone();
@@ -61,7 +83,11 @@ public:
 
     static void saveToFile(const vector<Employee*>& employees) {
         ofstream file("employees.csv");
-        for (const Employee* emp : employees) {
+        if (!file) {
+            cerr << "Error opening file for writing.\n";
+            return;
+        }
+        for (Employee* emp : employees) {
             file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << "," << emp->getRole() << endl;
         }
         file.close();
@@ -69,13 +95,29 @@ public:
 
     static void loadFromFile(vector<Employee*>& employees) {
         ifstream file("employees.csv");
-        string id, name, phone, email, role;
-        while (getline(file, id, ',') && getline(file, name, ',') && getline(file, phone, ',') && getline(file, email, ',') && getline(file, role)) {
+        if (!file) {
+            cerr << "Error opening file for reading.\n";
+            return;
+        }
+        string line;
+        while (getline(file, line)) {
+            stringstream ss(line);
+            string id, name, phone, email, role;
+
+            getline(ss, id, ',');
+            getline(ss, name, ',');
+            getline(ss, phone, ',');
+            getline(ss, email, ',');
+            getline(ss, role);
+
             employees.push_back(new Employee(name, phone, email, role, ""));
         }
         file.close();
     }
+
+    string getRole() const { return role; }
 };
+
 
 class Manager : public Employee {
 public:
@@ -90,6 +132,7 @@ public:
 
         switch (option) {
             case 1:
+                person::printTableHeader();
                 for (Customer* cust : customers) {
                     cust->display();
                 }
@@ -119,6 +162,7 @@ public:
 
         switch (option) {
             case 1:
+                person::printTableHeader();
                 for (Employee* emp : employees) {
                     emp->display();
                 }
@@ -147,7 +191,7 @@ private:
         cin >> searchID;
         cin.ignore();
         bool found = false;
-        for (const Customer* cust : customers) {
+        for (Customer* cust : customers) {
             if (cust->getID() == searchID) {
                 cust->display();
                 found = true;
@@ -166,7 +210,7 @@ private:
         cin.ignore(); // Clear input buffer
 
         for (int i = 0; i < num; ++i) {
-            string name, phone, email, password;
+            string name, phone, email, password, confirmPass;
 
             cout << "Enter details for customer " << (i + 1) << ":" << endl;
 
@@ -175,63 +219,79 @@ private:
 
             cout << "Enter phone: ";
             getline(cin, phone);
-            while (!person::isValidPhone(phone)) {
-                cout << "Invalid phone number format. Enter again: ";
-                getline(cin, phone);
-            }
 
             cout << "Enter email: ";
             getline(cin, email);
-            while (!person::isValidEmail(email)) {
-                cout << "Invalid email format. Enter again: ";
-                getline(cin, email);
-            }
 
-            cout << "Enter password: ";
-            getline(cin, password);
+            // Nhập và xác nhận mật khẩu
+            do {
+                cout << "Enter password: ";
+                password = hidenPass();
 
+                cout << "Confirm password: ";
+                confirmPass = hidenPass();
+
+                if (password != confirmPass) {
+                    cout << "Passwords do not match. Please try again." << endl;
+                }
+            } while (password != confirmPass);
+
+            // Thêm khách hàng vào danh sách
             customers.push_back(new Customer(name, phone, email, password));
             cout << "Customer " << (i + 1) << " added successfully!" << endl;
         }
 
+        // Lưu khách hàng vào file sau khi thêm mới
         Customer::saveToFile(customers);
     }
 
     void deleteCustomer(vector<Customer*>& customers) {
-        string id;
-        cout << "Enter customer ID to delete: ";
-        cin >> id;
-        cin.ignore();
-        auto it = remove_if(customers.begin(), customers.end(), [&](Customer* cust) {
-            if (cust->getID() == id) {
-                delete cust;
-                return true;
-            }
-            return false;
-        });
-        customers.erase(it, customers.end());
-        Customer::saveToFile(customers);
-    }
+    string id;
+    cout << "Enter customer ID to delete: ";
+    cin >> id;
+    cin.ignore();
 
-    void editCustomer(vector<Customer*>& customers) {
-        string id;
-        cout << "Enter customer ID to edit: ";
-        cin >> id;
-        cin.ignore();
-
-        auto it = find_if(customers.begin(), customers.end(), [&](Customer* cust) {
-            return cust->getID() == id;
-        });
-
-        if (it != customers.end()) {
-            Customer* cust = *it;
-            cout << "Editing customer with ID: " << id << endl;
-            cust->updateInfo();
-            Customer::saveToFile(customers);
-        } else {
-            cout << "Customer with this ID not found.\n";
+    int initialSize = customers.size();  // Lưu kích thước ban đầu
+    auto it = remove_if(customers.begin(), customers.end(), [&](Customer* cust) {
+        if (cust->getID() == id) {
+            delete cust;
+            return true;
         }
+        return false;
+    });
+    customers.erase(it, customers.end());
+    Customer::saveToFile(customers);
+
+    // Hiển thị số lượng khách hàng bị xóa
+    int deletedCount = initialSize - customers.size();
+    if (deletedCount > 0) {
+        cout << deletedCount << " customer(s) deleted successfully!" << endl;
+    } else {
+        cout << "No customer found with this ID.\n";
     }
+}
+
+// Thêm vào phần chỉnh sửa khách hàng trong hàm editCustomer
+void editCustomer(vector<Customer*>& customers) {
+    string id;
+    cout << "Enter customer ID to edit: ";
+    cin >> id;
+    cin.ignore();
+
+    auto it = find_if(customers.begin(), customers.end(), [&](Customer* cust) {
+        return cust->getID() == id;
+    });
+
+    if (it != customers.end()) {
+        Customer* cust = *it;
+        cout << "Editing customer with ID: " << id << endl;
+        cust->updateInfo();
+        Customer::saveToFile(customers);
+        cout << "1 customer edited successfully!" << endl;
+    } else {
+        cout << "Customer with this ID not found.\n";
+    }
+}
 
     void addEmployee(vector<Employee*>& employees) {
         int num;
@@ -257,9 +317,10 @@ private:
             getline(cin, role);
 
             cout << "Enter password: ";
-            getline(cin, password);
+            password = hidenPass();
 
             employees.push_back(new Employee(name, phone, email, role, password));
+            cout << "Employee " << (i + 1) << " added successfully!" << endl;
         }
 
         Employee::saveToFile(employees);
@@ -270,12 +331,18 @@ private:
         cout << "Enter employee ID to update: ";
         cin >> id;
         cin.ignore();
-        for (Employee* emp : employees) {
-            if (emp->getID() == id) {
-                emp->updateInfo();
-                Employee::saveToFile(employees);
-                break;
-            }
+
+        auto it = find_if(employees.begin(), employees.end(), [&](Employee* emp) {
+            return emp->getID() == id;
+        });
+
+        if (it != employees.end()) {
+            Employee* emp = *it;
+            cout << "Updating employee with ID: " << id << endl;
+            emp->updateInfo();
+            Employee::saveToFile(employees);
+        } else {
+            cout << "Employee with this ID not found.\n";
         }
     }
 
@@ -316,55 +383,99 @@ private:
     }
 };
 
+string getUserRole() {
+    string role;
+    while (true) {
+        cout << "Enter your role(MANAGER/SALES): ";
+        cin >> role;
+        cin.ignore();  // Xóa bộ đệm sau khi nhập
+
+        // Kiểm tra nếu vai trò hợp lệ
+        if (role == "MANAGER" || role == "SALES") {
+            break;  // Vai trò hợp lệ, thoát khỏi vòng lặp
+        } else {
+            cout << "Invalid. Please select again.\n";
+        }
+    }
+    return role;
+}
+
+// Hàm hiển thị và xử lý menu cho Manager
+void handleManagerMenu(Manager& manager, vector<Customer*>& customers, vector<Employee*>& employees) {
+    while (true) {
+        int choice;
+        cout << "1. Manager customer\n";
+        cout << "2. Manager employee\n";
+        cout << "3. Exit\n";
+        cout << "Choose: ";
+        cin >> choice;
+        cin.ignore();  // Xóa bộ đệm
+
+        switch (choice) {
+            case 1:
+                manager.manageCustomer(customers);
+                break;
+            case 2:
+                manager.manageEmployee(employees);
+                break;
+            case 3:
+                cout << "Exiting...\n";
+                // Giải phóng bộ nhớ trước khi thoát
+                for (Customer* cust : customers) {
+                    delete cust;
+                }
+                customers.clear();
+
+                for (Employee* emp : employees) {
+                    delete emp;
+                }
+                employees.clear();
+
+                return;  // Thoát khỏi hàm
+            default:
+                cout << "Invalid. Please select again.\n";
+        }
+    }
+}
+
+// Hàm hiển thị thông tin khách hàng cho Sales
+void displaySalesCustomers(const vector<Customer*>& customers) {
+    for (Customer* cust : customers) {
+        cust->display();  // Hiển thị thông tin khách hàng
+    }
+}
+
 // Hàm chính
 int main() {
     vector<Customer*> customers;
     vector<Employee*> employees;
 
-    // Tải dữ liệu từ file
+    // Tải dữ liệu từ file CSV
     Customer::loadFromFile(customers);
     Employee::loadFromFile(employees);
 
-    string role;
-    cout << "Enter your role (MANAGER/SALES): ";
-    cin >> role;
-    cin.ignore(); // Clear input buffer
+    // Lấy vai trò người dùng
+    string role = getUserRole();
 
+    // Xử lý theo vai trò
     if (role == "MANAGER") {
-        Manager manager("Manager", "0123456789", "manager@gmail.com", "pass123");
-        while (true) {
-            int choice;
-            cout << "1. Manage customers\n2. Manage employees\n3. Exit\nChoose: ";
-            cin >> choice;
-            cin.ignore();
-
-            if (choice == 1) {
-                manager.manageCustomer(customers);
-            } else if (choice == 2) {
-                manager.manageEmployee(employees);
-            } else if (choice == 3) {
-                break;
-            } else {
-                cout << "Invalid choice\n";
-            }
-        }
+        Manager manager("Manager", "0123456789", "manager@example.com", "managerpass");
+        handleManagerMenu(manager, customers, employees);
     } else if (role == "SALES") {
-        // Sales employee only views customer information
-        cout << "Sales employee viewing customer information.\n";
-        for (Customer* cust : customers) {
-            cust->display();
-        }
-    } else {
-        cout << "Invalid role.\n";
+        person::printTableHeader();
+        displaySalesCustomers(customers);
     }
 
-    // Giải phóng bộ nhớ
+    // Giải phóng bộ nhớ và thoát
     for (Customer* cust : customers) {
         delete cust;
     }
+    customers.clear();
+
     for (Employee* emp : employees) {
         delete emp;
     }
+    employees.clear();
 
     return 0;
 }
