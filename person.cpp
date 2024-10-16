@@ -145,3 +145,12 @@ int person::login(string id, string pw, person *p){
     }
     return 0;
 }
+
+void person::printTableHeader() {
+    cout << left << setw(10) << "ID"
+         << setw(20) << "Full Name"
+         << setw(30) << "Email"
+         << setw(15) << "Phone"
+         << endl;
+    cout << "-----------------------------------------------------------------------" << endl;
+}
