@@ -11,8 +11,8 @@
 
 using namespace std;
 
-class person {
-private:
+class person{
+    private:
     string personID, name, phone, email, pass, role;
     static int nextID;
     string generateID(); 
@@ -34,3 +34,5 @@ public:
 };
 
 #endif
+=======
+    

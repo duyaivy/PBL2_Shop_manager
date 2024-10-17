@@ -1,4 +1,4 @@
-﻿#include "person.h"
+#include "person.h"
 
 string person::generateID() {
     // Chuy?n nextID th�nh chu?i c� 7 ch? s?, th�m s? 0 ? ph�a tru?c
