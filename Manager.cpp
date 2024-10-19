@@ -90,7 +90,7 @@ void Manager::addCustomer(vector<Customer*>& customers) {
     cout << "Enter number of new customers: ";
     cin >> num;
     cin.ignore(); // Clear input buffer
-
+    // chi xay dung them thu cong 1 khach hang, neu them nhieu hon thif tao ham thêm khách hàng bằng file.
     for (int i = 0; i < num; ++i) {
         string name, phone, email, password, confirmPass;
 
@@ -129,7 +129,7 @@ void Manager::deleteCustomer(vector<Customer*>& customers) {
     cout << "Enter customer ID to delete: ";
     cin >> id;
     cin.ignore();
-
+// giait thich code nay
     auto it = remove_if(customers.begin(), customers.end(), [&](Customer* cust) {
         return cust->getID() == id;
         });
@@ -162,7 +162,7 @@ void Manager::editCustomer(vector<Customer*>& customers) {
 
 void Manager::addEmployee(vector<Employee*>& employees) {
     string name, phone, email, role, password;
-
+// sudung các hàm set name, set phone, set infor của class person..
     cout << "Enter name: ";
     getline(cin, name);
 

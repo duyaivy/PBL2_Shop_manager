@@ -7,7 +7,7 @@ using namespace std;
 
 Customer::Customer(const string& name, const string& phone, const string& email, const string& password)
     : person(name, phone, email, password) {}
-
+// sua lai 2 cáse update hết toàn bộ thông tin hoặc update 1 phần thông tin. 
 void Customer::updateInfo() {
     setPhone();
     setEmail();

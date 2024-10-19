@@ -72,6 +72,7 @@ void displaySalesCustomers(const vector<Customer*>& customers) {
 }
 
 int main() {
+    // sudung chung 1 vector của person để trỏ đến từng customer và employee
     vector<Customer*> customers;
     vector<Employee*> employees;
 

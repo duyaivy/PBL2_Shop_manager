@@ -7,7 +7,7 @@ using namespace std;
 
 Employee::Employee(const string& name, const string& phone, const string& email, const string& role, const string& password)
     : person(name, phone, email, password), role(role) {}
-
+// overridig lai tu person
 void Employee::display() {
     cout << setw(10) << getID()
         << setw(20) << getName()
@@ -22,7 +22,10 @@ void Employee::updateInfo() {
     cout << "Enter new role: ";
     getline(cin, role);
 }
-
+// thay doi tham số thành tên file nhập vào. sử dụng vector person để dùng chung
+// nhập chung nhan vien va quanli thnahf 1 đối tượng vì trpng person có định nghĩa thuộc itnhs role. 
+// xây dựng hàm cần tránh việc hardcode(chỉ sử dụng trong 1 trường hợp nhaats định)
+// Tạo thuôc tính ảo cho lớp person, khi về lớp con là cus hya admin thì override lại -> trừu tượng
 void Employee::saveToFile(const vector<Employee*>& employees) {
     ofstream file("employees.csv");
     if (!file) {
