@@ -1,4 +1,9 @@
 #include "product.h"
+#include<vector>
+#include <iomanip>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
 static vector<product*> prd;
 
 string product::generatePrdID() {
@@ -38,12 +43,12 @@ product::product(const string name ,const string brand ,const string detail,cons
     prd.push_back(this);
 }
 void product::getInfor(const product *p){
-        cout << left << setw(10) << "ID:" << setw(10) << p->productID << endl
-             << left << setw(10) << "Name:" << setw(20) << p->prdName << endl
-             << left << setw(10) << "Brand:" << setw(30) << p->prdBrand << endl
-             << left << setw(10) << "Detail:" << setw(50) << p->prdDetail << endl
-             << left << setw(10) << "Price:" << formatCurrency(p->unitPrice)  <<endl
-             << left << setw(10) << "Quantity:" << setw(10) << p->quantity << endl
+        cout << left << setw(15) << "ID:" << setw(15) << p->productID << endl
+             << left << setw(15) << "Name:" << setw(20) << p->prdName << endl
+             << left << setw(15) << "Brand:" << setw(30) << p->prdBrand << endl
+             << left << setw(15) << "Detail:" << setw(50) << p->prdDetail << endl
+             << left << setw(15) << "Price:" << formatCurrency(p->unitPrice)  <<endl
+             << left << setw(15) << "Quantity:" << setw(15) << p->quantity << endl
              << "----------------------------------------" << endl;
 
 }
@@ -88,9 +93,7 @@ int product::searchByID(string ID ){
             right = mid - 1; 
         }
     }
-    
     return 0;
-
 }
 
 
@@ -191,3 +194,40 @@ int product::loadFromFile(string fileName) {
         file.close();
 return 1;
 }
+product* product::getPrdByID(const string id){
+    for (product *p : prd){
+        if (p->getPrdID() == id){   
+            return p;
+        }
+    }
+return nullptr; 
+}
+void product::printInfor(){
+ cout << left << setw(10) << "ID:" << setw(10) << productID << endl
+    << left << setw(10) << "Name:" << setw(20) << prdName << endl
+    << left << setw(10) << "Brand:" << setw(30) << prdBrand << endl
+    << left << setw(10) << "Detail:" << setw(50) << prdDetail << endl
+    << left << setw(10) << "Price:" << formatCurrency(unitPrice)  <<endl
+    << left << setw(10) << "Quantity:" << setw(10) << quantity << endl
+    << "----------------------------------------" << endl;
+}
+
+// get 
+string product::getPrdID(){
+    return productID;
+    }
+string product::getPrdName(){
+    return prdName;
+    }
+string product::getPrdBranch(){
+    return prdBrand;
+    }
+string product::getPrdDetail(){
+    return prdDetail;
+    }
+long long product::getUnitPrice(){
+    return unitPrice;
+    }
+int product::getQuantity(){
+    return quantity;
+    }
