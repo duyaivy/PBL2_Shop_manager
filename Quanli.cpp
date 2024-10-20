@@ -11,8 +11,8 @@ using namespace std;
 
 class Customer : public person {
 public:
-    Customer(const string& name, const string& phone, const string& email, const string& password)
-        : person(name, phone, email, password) {}
+    Customer(const string& name, const string& phone, const string& email, const string& password, const string& role)
+        : person(name, phone, email, password, role) {}
 
     void updateInfo() {
         setPhone();
@@ -48,7 +48,7 @@ public:
             getline(ss, email, ',');
             getline(ss, password);
 
-            customers.push_back(new Customer(name, phone, email, password));
+            customers.push_back(new Customer(name, phone, email, password, "customer"));
         }
         file.close();
     }
@@ -239,7 +239,7 @@ private:
             } while (password != confirmPass);
 
             // Thêm khách hàng vào danh sách
-            customers.push_back(new Customer(name, phone, email, password));
+            customers.push_back(new Customer(name, phone, email, password, "customer"));
             cout << "Customer " << (i + 1) << " added successfully!" << endl;
         }
 
