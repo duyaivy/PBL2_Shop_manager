@@ -21,7 +21,7 @@ public:
     static void getInfor(const invoiceDetail *detail);
     void setQuantity(int number); 
     static invoiceDetail* getDetailByID(const string id = "" ); 
-    int deleteDetail();
+    void deleteDetail();
     static void displayDetail(); 
     static int saveToFile(string fileName);
     static int loadFromFile(string fileName);

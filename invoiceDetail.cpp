@@ -36,15 +36,15 @@ invoiceDetail::invoiceDetail(const string invoiceID, const int quantity,const st
         detail.push_back(this);
     }
 
-    string invoiceDetail::generateDetailID(){
+string invoiceDetail::generateDetailID(){
         stringstream ss;
         ss <<"DE"<< setw(5) << setfill('0') << nextDetailID++; 
         return ss.str();
     }
 void invoiceDetail:: getInfor(const invoiceDetail *detail){
      cout << left << setw(15) << "Detail ID:" << setw(15) << detail->detailID << endl
-        << left << setw(15) << "Invoice ID:" << setw(30) << detail->invoiceID << endl
-        << left << setw(15) << "Product ID" << setw(50) << detail->prdID << endl
+        << left << setw(15) << "Invoice ID:" << setw(15) << detail->invoiceID << endl
+        << left << setw(15) << "Product ID" << setw(15) << detail->prdID << endl
         << left << setw(15) << "Quantity:" << setw(15) << detail->quantity << endl
         << left << setw(15) << "Price:" << formatCurrency(detail->price)  <<endl
         << "----------------------------------------" << endl;
@@ -61,7 +61,7 @@ invoiceDetail* invoiceDetail:: getDetailByID(string id ){
     }
 return nullptr; 
 }
-int invoiceDetail:: deleteDetail(){
+void invoiceDetail:: deleteDetail(){
  auto it = find(detail.begin(), detail.end(), this);
     if (it != detail.end()) {
         detail.erase(it);
