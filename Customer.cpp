@@ -1,4 +1,6 @@
 #include "Customer.h"
+#include "person.h"
+
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -7,30 +9,79 @@ using namespace std;
 
 Customer::Customer(const string& name, const string& phone, const string& email, const string& password)
     : person(name, phone, email, password) {}
-// sua lai 2 cáse update hết toàn bộ thông tin hoặc update 1 phần thông tin. 
+
 void Customer::updateInfo() {
-    setPhone();
-    setEmail();
+    int choice;
+    cout << "Choose update option:" << endl;
+    cout << "1. Update all information" << endl;
+    cout << "2. Update part of information" << endl;
+    cout << "Enter your choice: ";
+    cin >> choice;
+    cin.ignore();
+    switch (choice) {
+    case 1:
+        cout << "Update all information" << endl;
+        setInfor(*this);
+        break;
+    case 2: {
+        int partChoice;
+        cout << "Choose part to update" << endl;
+        cout << "1. Update phone" << endl;
+        cout << "2. Update email" << endl;
+        cout << "3. Update pass" << endl;
+        cout << "Enter your choice: ";
+        cin >> partChoice;
+        cin.ignore();
+
+        switch (partChoice) {
+        case 1:
+            setPhone();
+            break;
+        case 2:
+            setEmail();
+            break;
+        case 3:
+            setPass();
+            break;
+        }
+        break;
+    }
+    default:
+        cout << "Invalid choice!" << endl; // Thông báo khi nhập không hợp lệ
+        break;
+    }
 }
 
-void Customer::saveToFile(const vector<Customer*>& customers) {
-    ofstream file("customers.csv");
-    if (!file) {
+void Customer::saveToFile(const vector<person*>& persons, const string& fileName) {
+    ofstream file(fileName); // Mở file
+    if (!file.is_open()) { // Kiểm tra xem file có mở thành công không
         cerr << "Error opening file for writing.\n";
         return;
     }
-    for (Customer* cust : customers) {
-        file << cust->getID() << "," << cust->getName() << "," << cust->getPhone() << "," << cust->getEmail() << "," << cust->getPass() << endl;
+
+    for ( person* p : persons) {
+         Customer* cust = dynamic_cast< Customer*>(p); // Chỉ lưu thông tin khách hàng
+        if (cust) {
+            // Ghi thông tin vào file
+            file << cust->getID() << ","
+                << cust->getName() << ","
+                << cust->getPhone() << ","
+                << cust->getEmail() << ","
+                << cust->getPass() << endl;
+        }
     }
-    file.close();
+
+    file.close(); // Đóng file
 }
 
-void Customer::loadFromFile(vector<Customer*>& customers) {
-    ifstream file("customers.csv");
+
+void Customer::loadFromFile(const string& fileName, vector<person*>& persons) {
+    ifstream file(fileName);
     if (!file) {
         cerr << "Error opening file for reading.\n";
         return;
     }
+
     string line;
     while (getline(file, line)) {
         stringstream ss(line);
@@ -42,7 +93,7 @@ void Customer::loadFromFile(vector<Customer*>& customers) {
         getline(ss, email, ',');
         getline(ss, password);
 
-        customers.push_back(new Customer(name, phone, email, password));
+        persons.push_back(new Customer(name, phone, email, password));
     }
     file.close();
 }
@@ -53,3 +104,12 @@ void Customer::display() {
         << setw(30) << getEmail()
         << setw(20) << getPhone() << endl;
 }
+
+void Customer::setInfor(person& a) {
+   Customer& cust = dynamic_cast<Customer&>(a); 
+   cust.setName();
+   cust.setPhone();
+   cust.setEmail();
+   cust.setPass();
+}
+

@@ -1,13 +1,15 @@
 #include "Employee.h"
+#include "Customer.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include <algorithm>
 using namespace std;
 
 Employee::Employee(const string& name, const string& phone, const string& email, const string& role, const string& password)
     : person(name, phone, email, password), role(role) {}
-// overridig lai tu person
+
 void Employee::display() {
     cout << setw(10) << getID()
         << setw(20) << getName()
@@ -22,24 +24,26 @@ void Employee::updateInfo() {
     cout << "Enter new role: ";
     getline(cin, role);
 }
-// thay doi tham số thành tên file nhập vào. sử dụng vector person để dùng chung
-// nhập chung nhan vien va quanli thnahf 1 đối tượng vì trpng person có định nghĩa thuộc itnhs role. 
-// xây dựng hàm cần tránh việc hardcode(chỉ sử dụng trong 1 trường hợp nhaats định)
-// Tạo thuôc tính ảo cho lớp person, khi về lớp con là cus hya admin thì override lại -> trừu tượng
-void Employee::saveToFile(const vector<Employee*>& employees) {
-    ofstream file("employees.csv");
+
+void Employee::saveToFile(const vector<person*>& persons, const string& filename) {
+    ofstream file(filename);
     if (!file) {
         cerr << "Error opening file for writing.\n";
         return;
     }
-    for (Employee* emp : employees) {
-        file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << "," << emp->getRole() << endl;
+
+    for ( person* p : persons) {
+        Employee* emp = dynamic_cast< Employee*>(p); // Chỉ lưu thông tin nhân viên
+        if (emp) {
+            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << "," << emp->getRole() << endl;
+        }
     }
+
     file.close();
 }
 
-void Employee::loadFromFile(vector<Employee*>& employees) {
-    ifstream file("employees.csv");
+void Employee::loadFromFile(const string& filename, vector<person*>& persons) {
+    ifstream file(filename);
     if (!file) {
         cerr << "Error opening file for reading.\n";
         return;
@@ -55,11 +59,387 @@ void Employee::loadFromFile(vector<Employee*>& employees) {
         getline(ss, email, ',');
         getline(ss, role);
 
-        employees.push_back(new Employee(name, phone, email, role, ""));
+        persons.push_back(new Employee(name, phone, email, role, "")); // Thêm vào vector chung
     }
     file.close();
 }
 
 string Employee::getRole() const {
     return role;
+}
+
+// Các chức năng quản lý khách hàng và nhân viên, chỉ khả dụng nếu role là "MANAGER"
+void Employee::manageCustomers(vector<person*>& persons) {
+    int option;
+    cout << "1. View customers\n2. Search customer\n3. Add new customer\n4. Delete customer\n5. Edit customer\nChoose: ";
+    cin >> option;
+    cin.ignore();
+
+    switch (option) {
+    case 1:
+        person::printTableHeader();
+        for (person* p : persons) {
+            Customer* cust = dynamic_cast< Customer*>(p); // Chỉ hiển thị khách hàng
+            if (cust) {
+                cust->display();
+            }
+        }
+        break;
+    case 2:
+        searchCustomerByID(persons);
+        break;
+    case 3:
+        addCustomer(persons);
+        break;
+    case 4:
+        deleteCustomer(persons);
+        break;
+    case 5:
+        editCustomer(persons);
+        break;
+    default:
+        cout << "Invalid option\n";
+    }
+}
+
+void Employee::manageEmployees(vector<person*>& persons) {
+    int option;
+    cout << "1. View employees\n2. Add new employee\n3. Update employee info\n4. Delete employee\n5. Edit employee\nChoose: ";
+    cin >> option;
+    cin.ignore();
+
+    switch (option) {
+    case 1:
+        person::printTableHeader();
+        for (person* p : persons) {
+             Employee* emp = dynamic_cast<Employee*>(p); // Chỉ hiển thị nhân viên
+            if (emp) {
+                emp->display();
+            }
+        }
+        break;
+    case 2:
+        addEmployee(persons);
+        break;
+    case 3:
+        updateEmployee(persons);
+        break;
+    case 4:
+        deleteEmployee(persons);
+        break;
+    case 5:
+        editEmployee(persons);
+        break;
+    default:
+        cout << "Invalid option\n";
+    }
+}
+
+// Các hàm phụ trợ để quản lý khách hàng và nhân viên
+
+void Employee::searchCustomerByID(const vector<person*>& persons) {
+    string searchID;
+    cout << "Enter customer ID to search: ";
+    cin >> searchID;
+    cin.ignore();
+    bool found = false;
+
+    for (person* p : persons) {
+        Customer* cust = dynamic_cast<Customer*>(p);  // Chỉ tìm kiếm trong đối tượng Customer
+        if (cust && cust->getID() == searchID) {
+            cust->display();
+            found = true;
+            break;
+        }
+    }
+
+    if (!found) {
+        cout << "Customer with this ID not found.\n";
+    }
+}
+
+
+void Employee::addCustomer(vector<person*>& persons) {
+    int choice;
+    cout << "Choose how to add a customer:\n";
+    cout << "1. Add customer manually\n";
+    cout << "2. Add customers from file\n";
+    cout << "Choose an option: ";
+    cin >> choice;
+    cin.ignore(); // Clear input buffer
+
+    switch (choice) {
+    case 1: {
+        // Thêm khách hàng thủ công
+        string name, phone, email, password, confirmPass;
+
+        cout << "Enter details for the new customer:" << endl;
+
+        cout << "Enter name: ";
+        getline(cin, name);
+
+        cout << "Enter phone: ";
+        getline(cin, phone);
+
+        cout << "Enter email: ";
+        getline(cin, email);
+
+        // Nhập và xác nhận mật khẩu
+        do {
+            cout << "Enter password: ";
+            password = hidenPass();
+
+            cout << "Confirm password: ";
+            confirmPass = hidenPass();
+
+            if (password != confirmPass) {
+                cout << "Passwords do not match. Please try again." << endl;
+            }
+        } while (password != confirmPass);
+
+        // Thêm khách hàng vào danh sách
+        persons.push_back(new Customer(name, phone, email, password));
+        cout << "Customer " << name << " added successfully.\n";
+        break;
+    }
+    case 2: {
+        // Thêm khách hàng từ file
+        string fileName;
+        cout << "Enter the filename: ";
+        getline(cin, fileName);
+        addCustomersFromFile(fileName, persons);
+        break;
+    }
+    default:
+        cout << "Invalid option. Please choose 1 or 2.\n";
+        break;
+    }
+}
+
+
+void Employee::addCustomersFromFile(const string& fileName, vector<person*>& persons) {
+    ifstream file(fileName);
+    if (!file) {
+        cerr << "Error opening file for reading.\n";
+        return;
+    }
+
+    string line;
+    while (getline(file, line)) {
+        stringstream ss(line);
+        string name, phone, email, password;
+
+        getline(ss, name, ',');
+        getline(ss, phone, ',');
+        getline(ss, email, ',');
+        getline(ss, password); // Assuming password is the last field
+
+        // Thêm khách hàng vào danh sách
+        persons.push_back(new Customer(name, phone, email, password));
+        cout << "Customer " << name << " added successfully from file.\n";
+    }
+
+    file.close();
+}
+
+
+void Employee::deleteCustomer(vector<person*>& persons) {
+    string id;
+    cout << "Enter customer ID to delete: ";
+    cin >> id;
+    cin.ignore();
+
+    auto it = remove_if(persons.begin(), persons.end(), [&](person* p) {
+        Customer* cust = dynamic_cast<Customer*>(p);  // Chỉ xóa đối tượng là Customer
+        return cust && cust->getID() == id;
+        });
+
+    if (it != persons.end()) {
+        delete* it;
+        persons.erase(it, persons.end());
+        cout << "Customer deleted successfully.\n";
+    }
+    else {
+        cout << "Customer not found.\n";
+    }
+}
+
+
+void Employee::editCustomer(vector<person*>& persons) {
+    string id;
+    cout << "Enter customer ID to edit: ";
+    cin >> id;
+    cin.ignore();
+
+    for (person* p : persons) {
+        Customer* cust = dynamic_cast<Customer*>(p);  // Chỉ chỉnh sửa đối tượng Customer
+        if (cust && cust->getID() == id) {
+            cust->updateInfo();
+            cout << "Customer info updated successfully.\n";
+            return;
+        }
+    }
+    cout << "Customer not found.\n";
+}
+
+
+void Employee::addEmployee(vector<person*>& persons) {
+    string name, phone, email, role, password;
+
+    // Nhập thông tin của nhân viên mới
+    cout << "Enter Name: ";
+    getline(cin, name);
+    cout << "Enter Phone: ";
+    getline(cin, phone);
+    cout << "Enter Email: ";
+    getline(cin, email);
+    cout << "Enter Password: ";
+    password = hidenPass();  
+
+    cout << "Enter Role: ";
+    getline(cin, role);
+
+    // Tạo đối tượng Employee mới và thêm vào danh sách
+    persons.push_back(new Employee(name, phone, email, password, role));
+
+    cout << "Employee " << name << " added successfully.\n";
+}
+
+void Employee::updateEmployee(vector<person*>& persons) {
+    string id;
+    cout << "Enter employee ID to update: ";
+    cin >> id;
+    cin.ignore();
+
+    for (person* p : persons) {
+        Employee* emp = dynamic_cast<Employee*>(p);  // Chỉ cập nhật đối tượng Employee
+        if (emp && emp->getID() == id) {
+            emp->updateInfo();
+            cout << "Employee info updated successfully.\n";
+            return;
+        }
+    }
+    cout << "Employee not found.\n";
+}
+
+void Employee::deleteEmployee(vector<person*>& persons) {
+    string id;
+    cout << "Enter employee ID to delete: ";
+    cin >> id;
+    cin.ignore();
+
+    auto it = remove_if(persons.begin(), persons.end(), [&](person* p) {
+        Employee* emp = dynamic_cast<Employee*>(p);  // Chỉ xóa đối tượng là Employee
+        return emp && emp->getID() == id;
+        });
+
+    if (it != persons.end()) {
+        delete* it;
+        persons.erase(it, persons.end());
+        cout << "Employee deleted successfully.\n";
+    }
+    else {
+        cout << "Employee not found.\n";
+    }
+}
+
+
+void Employee::editEmployee(vector<person*>& persons) {
+    string id;
+    cout << "Enter employee ID to edit: ";
+    cin >> id;
+    cin.ignore();
+
+    for (person* p : persons) {
+        Employee* emp = dynamic_cast<Employee*>(p);  // Chỉ chỉnh sửa đối tượng Employee
+        if (emp && emp->getID() == id) {
+            emp->updateInfo();
+            cout << "Employee info updated successfully.\n";
+            return;
+        }
+    }
+    cout << "Employee not found.\n";
+}
+void Employee::setInfor(person& a) {
+    Employee& emp = dynamic_cast<Employee&>(a); // Chuyển đổi sang Customer
+    emp.setName();
+    emp.setPhone();
+    emp.setEmail();
+    emp.setPass();
+}
+
+
+string Employee::getUserRole() {
+    string role;
+    while (true) {
+        cout << "Enter your role (MANAGER/SALES): ";
+        cin >> role;
+        cin.ignore();
+
+        // Kiểm tra nếu vai trò hợp lệ
+        if (role == "MANAGER" || role == "SALES") {
+            break;
+        }
+        else {
+            cout << "Invalid. Please select again.\n";
+        }
+    }
+    return role;
+}
+void Employee::handleManagerMenu(Employee& manager, vector<person*>& persons) {
+    while (true) {
+        int choice;
+        cout << "\n--- Manager Menu ---\n";
+        cout << "1. Manage Customers\n";
+        cout << "2. Manage Employees\n";
+        cout << "3. Exit\n";
+        cout << "Choose: ";
+        cin >> choice;
+        cin.ignore();  // Xóa bộ đệm
+
+        switch (choice) {
+        case 1:
+            manager.manageCustomers(persons);  // Gọi phương thức quản lý khách hàng
+            break;
+        case 2:
+            manager.manageEmployees(persons);  // Gọi phương thức quản lý nhân viên
+            break;
+        case 3:
+            cout << "Exiting...\n";
+            // Giải phóng bộ nhớ trước khi thoát
+            for (person* p : persons) {
+                delete p;
+            }
+            persons.clear();
+
+            return;  // Thoát khỏi hàm
+        default:
+            cout << "Invalid option. Please select again.\n";
+        }
+    }
+}
+
+
+void Employee::displaySalesCustomers(const vector<person*>& persons) {
+    cout << "\n--- Customer List ---\n";
+    person::printTableHeader();  // Giả định bạn có hàm này trong lớp person
+    for (person* p : persons) {
+        Customer* cust = dynamic_cast<Customer*>(p);  // Chỉ hiển thị nếu là Customer
+        if (cust) {
+            cust->display();  // Hiển thị thông tin khách hàng
+        }
+    }
+}
+
+
+// Hàm xử lý theo vai trò người dùng
+void Employee::handleUserRole(string role, vector<person*>& persons) {
+    if (role == "MANAGER") {
+        // Tạo đối tượng Employee cho quản lý
+        Employee manager("Default", "0000000000", "default@example.com", role, "default123");
+        handleManagerMenu(manager, persons);  // Gọi hàm menu cho Manager
+    }
+    else if (role == "SALES") {
+        displaySalesCustomers(persons);  // Hiển thị danh sách khách hàng
+    }
 }

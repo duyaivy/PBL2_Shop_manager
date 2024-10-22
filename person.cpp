@@ -1,5 +1,5 @@
 #include "person.h"
-
+static vector<person*> obj;
 string person::generateID() {
     // Chuy?n nextID th�nh chu?i c� 7 ch? s?, th�m s? 0 ? ph�a tru?c
     stringstream ss;
@@ -27,6 +27,7 @@ void person::clearPerson() {
     obj.shrink_to_fit();
 
 }
+
 // name
 string person::getName() {
     return name;
@@ -158,6 +159,4 @@ void person::printTableHeader() {
         << endl;
     cout << "-----------------------------------------------------------------------" << endl;
 }
-
-int person::nextID = 0; // Khởi tạo biến tĩnh nextID
-vector<person*> person::obj; // Khởi tạo vector tĩnh obj
+int person::nextID = 0;  // Định nghĩa biến tĩnh
