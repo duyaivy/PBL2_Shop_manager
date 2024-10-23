@@ -17,6 +17,8 @@ void Employee::display() {
         << setw(20) << getPhone()
         << setw(15) << role << endl;
 }
+// tương tự hàm set của person. Ở đây không nên cho update role bởi vì khách hàng là kahcs hàng mà nhân viên là nhân viên.
+// mỗi role có những giá trị chứa khác nhau, đổi là sẽ lỗi. bài toán thực tế thì có nhưng nếu có thì họ sẽ tạo một tài khoàn nhân viên mới chứ không thay đổi thế này.
 
 void Employee::updateInfo() {
     setPhone();
@@ -41,7 +43,7 @@ void Employee::saveToFile(const vector<person*>& persons, const string& filename
 
     file.close();
 }
-
+// lỗi tương tự cus.h
 void Employee::loadFromFile(const string& filename, vector<person*>& persons) {
     ifstream file(filename);
     if (!file) {
@@ -68,8 +70,10 @@ string Employee::getRole() const {
     return role;
 }
 
-// Các chức năng quản lý khách hàng và nhân viên, chỉ khả dụng nếu role là "MANAGER"
-void Employee::manageCustomers(vector<person*>& persons) {
+// Các chức năng quản lý khách hàng và nhân viên, chỉ khả dụng nếu role là  "MANAGER"
+//sửa lại role "adimin" thêm câu lệnh if(this->role() == "admin"){thì làm trong này}else{cout<<" không được phép...."}
+void Employee::manageCustomers(vector<person*>& persons) {\
+// rồi đã kiểm tra nếu nó là role "sale chưa? "
     int option;
     cout << "1. View customers\n2. Search customer\n3. Add new customer\n4. Delete customer\n5. Edit customer\nChoose: ";
     cin >> option;
@@ -86,6 +90,7 @@ void Employee::manageCustomers(vector<person*>& persons) {
         }
         break;
     case 2:
+    
         searchCustomerByID(persons);
         break;
     case 3:
@@ -100,8 +105,9 @@ void Employee::manageCustomers(vector<person*>& persons) {
     default:
         cout << "Invalid option\n";
     }
+    //nên xây dựng while nhập vào 0 nếu muốn thoát chế độ quản lí cus, còn lại cứ nhập vào những số khác thì cứ để làm rồi quay lại bắt chọn tính năng
 }
-
+// tương tự phải kiểm tra role
 void Employee::manageEmployees(vector<person*>& persons) {
     int option;
     cout << "1. View employees\n2. Add new employee\n3. Update employee info\n4. Delete employee\n5. Edit employee\nChoose: ";
@@ -136,7 +142,7 @@ void Employee::manageEmployees(vector<person*>& persons) {
 }
 
 // Các hàm phụ trợ để quản lý khách hàng và nhân viên
-
+// thêm các hàm khác để tìm kiếm như tìm kiếm theo tên. Hàm theo tìm theo từ khoá có xuất hiện trong tên t có gửi bên zalo rồi. vào tham khảo
 void Employee::searchCustomerByID(const vector<person*>& persons) {
     string searchID;
     cout << "Enter customer ID to search: ";
@@ -154,7 +160,7 @@ void Employee::searchCustomerByID(const vector<person*>& persons) {
     }
 
     if (!found) {
-        cout << "Customer with this ID not found.\n";
+        cout << "Customer with this ID not found.\n";// không xử lí in ra thông báo ở đây, trả về 0 hoặc 1 để làm việc đó ở ngoài. ở đâyc chỉ tìm kiếm nếu có thì in ra trả về 1, không có thì trả về 0
     }
 }
 
@@ -171,6 +177,7 @@ void Employee::addCustomer(vector<person*>& persons) {
     switch (choice) {
     case 1: {
         // Thêm khách hàng thủ công
+        // nên thay đổi tên biến sao cho khác với tên biến trong person.h vì nếu xử lý không kĩ tại hàm getline(ci,name) sẽ lấy giá trị nhập vào để gán nhập vào cho name của đói tượng đang gọi hàm hày
         string name, phone, email, password, confirmPass;
 
         cout << "Enter details for the new customer:" << endl;
@@ -216,7 +223,7 @@ void Employee::addCustomer(vector<person*>& persons) {
     }
 }
 
-
+//trả về 0 hoặc 1
 void Employee::addCustomersFromFile(const string& fileName, vector<person*>& persons) {
     ifstream file(fileName);
     if (!file) {
@@ -368,7 +375,7 @@ void Employee::setInfor(person& a) {
     emp.setPass();
 }
 
-
+// xoá hàm này vì chỉ có 1 quản lý nếu một nhân viên được thay đổi role tự ý lên quản lí thì bài toán thực tế không có cái này
 string Employee::getUserRole() {
     string role;
     while (true) {
@@ -419,7 +426,7 @@ void Employee::handleManagerMenu(Employee& manager, vector<person*>& persons) {
     }
 }
 
-
+// tên hàm này là sao hiển thị bán hàng và khách hàng?
 void Employee::displaySalesCustomers(const vector<person*>& persons) {
     cout << "\n--- Customer List ---\n";
     person::printTableHeader();  // Giả định bạn có hàm này trong lớp person
@@ -435,6 +442,7 @@ void Employee::displaySalesCustomers(const vector<person*>& persons) {
 // Hàm xử lý theo vai trò người dùng
 void Employee::handleUserRole(string role, vector<person*>& persons) {
     if (role == "MANAGER") {
+        // đối tượng admin không tạo ở đây. Nếu tạo mới thì sẽ có personID bởi vì này kế thừa từ person và id của person thì tăng đều. Như vậy đâu biết được id để đăng nhập đâu
         // Tạo đối tượng Employee cho quản lý
         Employee manager("Default", "0000000000", "default@example.com", role, "default123");
         handleManagerMenu(manager, persons);  // Gọi hàm menu cho Manager

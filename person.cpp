@@ -1,11 +1,11 @@
 #include "person.h"
-static vector<person*> obj;
+
 string person::generateID() {
-    // Chuy?n nextID th�nh chu?i c� 7 ch? s?, th�m s? 0 ? ph�a tru?c
+   
     stringstream ss;
     ss << setw(7) << setfill('0') << nextID;
-    nextID++; // Tang nextID l�n 1 cho ngu?i k? ti?p
-    return ss.str();// tr? v? gi� tr?
+    nextID++;
+    return ss.str();
 }
 
 // ham dung constructor
@@ -32,6 +32,9 @@ void person::clearPerson() {
 string person::getName() {
     return name;
 }
+  // phải sửa lại các hàm setName, set.... để tái sử dụng lại khi làm giao diện. 
+// Những hàm này phải có tham số truyền vào là một string, trong hàm chỉ làm việc set từ string truyền vào thôi. 
+//ở đây thì chỉ là this->name = name truyền vào.tươgn tự sửa hết các hàm set
 void person::setName() {
     cout << "Enter Fullname:";
     getline(cin, name);
@@ -114,11 +117,13 @@ void person::setPass() {
         }
     }
 }
+// sửa luôn hàm set infor cho phù hợp flow, cout<< nhập name, phone,... rồi set lại.
 void person::setInfor(person& a) {
     a.setName();
     a.setPhone();
     a.setEmail();
 }
+
 void person::display() {
     if (obj.empty()) {
         cout << "The program is NULL" << endl;

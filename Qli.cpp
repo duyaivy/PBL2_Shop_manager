@@ -4,7 +4,8 @@
 #include <vector>
 
 using namespace std;
-
+// bên person.h đã có 1 vector để chứa cho cả cuss và employee rồi thì ở đây sử dụng nó.
+// ngoài ra không nên khai báo những vector chứa ở trong hàm main, khai báo trên hàm main. 
 int main() {
     vector<person*> persons;  // Dùng cho cả Customer và Employee
 
