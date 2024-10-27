@@ -1,5 +1,5 @@
 #include "person.h"
-
+static vector<person*> obj;
 string person::generateID() {
    
     stringstream ss;

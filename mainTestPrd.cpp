@@ -1,20 +1,31 @@
 #include<iostream>
+#include"invoiceDetail.h"
 #include"product.h"
+#include"invoice.h"
 using namespace std;
 int product::nextPrdID = 1;
-vector<product*> product::prd;
+int invoiceDetail::nextDetailID = 1;
+int invoice::nextInvoiceID = 1;
+
 int main(){
   product* p1 = new product("Laptop A", "Brand A", "Detail A", 1000, 10);
-    product* p2 = new product("Laptop B", "Brand A", "Detail B", 1500, 5);
-    // product p3;
-    // product::setInfor( p3);
-    // Hiển thị thông tin các sản phẩm
-    cout << "Product Information:" << endl;
-    // product::getInfor(p1);
-    // p2->setUnitPrice(28767863647);
-    // product::getInfor(p2);
-    // cout<<p2->searchByName("Laptop A");      
-    product::displayPrd();
+  product* p2 = new product("Laptop c", "Brand A", "Detail B", 1500, 5);
+  product* p3 = new product("Gaming Laptop", "Brand A", "Detail B", 2500, 5);
 
-    return 0;
+invoiceDetail::loadFromFile(".\\csv\\detail.csv");
+invoice::loadFromFile(".\\csv\\invoice.csv");
+// invoice::getInvoiceByID("IN00002")->setQuantityInvoice("DE00002", 12);
+invoice::getInvoiceByID("IN00001")->setQuantityInvoice("DE00001", 500);
+// invoice::getInvoiceByID("IN00001")->deleteInvoice();
+// cout<<invoice::getInvoiceByID("IN00001")->getTotalPrice();
+
+
+invoice::display();
+
+// OK invoiceDetail::getDetailByID("DE00003")->setQuantity(10);
+
+invoiceDetail::saveToFile(".\\csv\\detail.csv");
+invoice::saveToFile(".\\csv\\invoice.csv");
+
+return 0;
 }
