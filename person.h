@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <iomanip>
-#include <vector>
+#include "vector.h"
 #include <conio.h>
 #include <sstream> // Để sử dụng stringstream
 

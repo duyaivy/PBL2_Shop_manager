@@ -94,7 +94,7 @@ void invoice::deleteInvoice(){
     auto it = find(inv.begin(), inv.end(), this);
     if (it != inv.end()) {
         inv.erase(it);
-        delete this;// giai phong bo nho cho this
+        delete this; // giai phong bo nho cho this
     }
 
 }
@@ -185,7 +185,6 @@ return time;
 }
 vector<string*> invoice::getDetailID(){
 return detailID;
-
 }
 long long invoice::getTotalPrice(){
 return totalPrice;

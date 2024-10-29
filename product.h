@@ -2,6 +2,7 @@
 #define PRODUCT_H
 #include<iostream>
 #include <string>
+#include "vector.h"
 using namespace std;
 // get infor 1; create 1 prd; set(update) 1 prd, search by ID, search by name, 
 // search by brand; show all; delete 1 prd ; input from csv; thay doi so luong 
@@ -37,5 +38,5 @@ public:
     long long getUnitPrice();
     int getQuantity();
 };
-
+static vector<product*> prd;
 #endif

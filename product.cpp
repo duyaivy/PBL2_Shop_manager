@@ -1,10 +1,9 @@
 #include "product.h"
-#include<vector>
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-static vector<product*> prd;
+
 
 string product::generatePrdID() {
         
@@ -74,7 +73,7 @@ void product::setUnitPrice(const long long price){
 int product::searchByID(string ID ){
     int id = convertStringToInt(ID);
      int left = 0;
-    int right = prd.size() - 1;
+    int right = prd.getSize() - 1;
     
     while (left <= right) {
         int mid = left + (right - left) / 2;
