@@ -37,5 +37,6 @@ public:
     long long getUnitPrice();
     int getQuantity();
 };
+static vector<product*> prd;
 
 #endif

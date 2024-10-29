@@ -1,6 +1,6 @@
 #ifndef EMPLOYEE_H 
 #define EMPLOYEE_H
-
+#include "product.h"
 #include "person.h"
 #include "Customer.h"
 #include <vector>
@@ -20,13 +20,14 @@ public:
     void updateInfo();
     // lỗi tương tự cus.h
     static void saveToFile( const string& filename); 
-    static int loadFromFile(const string& filename); 
+    static int loadFromFile(const string& filename) ; 
     string getRole() const;
     string getEmpID();
     //ở đây chỉ có một vector để lưu person thôi. Trong đó đã khai báo ở persion.h rồi thì ở đây lấy tham số truyền vào là vector để làm gì?
     // nó chỉ truyền vào khi có nhiều vector giống nhau, hạn chế code truyền vào như thế này. Sửa lại nhé
     void manageCustomers();
     void manageEmployees();
+    void manageProduct();
     
     static void handleManagerMenu(Employee& manager); 
     static void displayCustomers(); 
@@ -40,6 +41,8 @@ private:
     int searchCustomerByID();
     int searchCustomerByName();
     int searchEmployeeByID();
+
+    
 // tương tự những hàm add, delete,... cũng phải truyền vào là 1 string id của đối tượng đó. từ string đó get..ById để trả về con trỏ rồi lấy con trỏ đó mà làm việc!
 // kiểu trả vê là 0 hoặc 1 
     int addCustomer();
@@ -52,7 +55,14 @@ private:
     
     int addCustomersFromFile(const string& fileName);
     // đã có class product nên ở đây xây dựng thêm để quản lí product nữa, tạo, thêm, sửa, xoá.
+    int createProduct(const string& name, const string& brand, const string& detail, long long unitPrice, int quantity);
+    int deleteProduct(const string productID);
+    int editProduct(string newName, string newBrand, string newDetail, long long newunitPrice, int newQuanlity);
+    void displayProduct();
+    int updateProduct(const string& productID, const string& newName, const string& newBrand, const string& newDetail, long long newUnitPrice, int newQuantity);
+
     
-};static vector<Employee*>Em;;
+};
+
 
 #endif

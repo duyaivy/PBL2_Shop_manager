@@ -1,7 +1,13 @@
 #include "person.h"
-static vector<person*> obj;
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <conio.h>
+#include <iomanip>
+
 string person::generateID() {
-   
+
     stringstream ss;
     ss << setw(7) << setfill('0') << nextID;
     nextID++;
@@ -9,7 +15,7 @@ string person::generateID() {
 }
 
 // ham dung constructor
-person::person(const string _name, const string _phone, const string _email, const string _pass, string _role) {
+person::person(const string& _name, const string& _phone, const string& _email, const string& _pass, const string& _role) {
     name = _name; phone = _phone;
     email = _email; pass = _pass;
     role = _role;
@@ -32,12 +38,11 @@ void person::clearPerson() {
 string person::getName() {
     return name;
 }
-  // phải sửa lại các hàm setName, set.... để tái sử dụng lại khi làm giao diện. 
+// phải sửa lại các hàm setName, set.... để tái sử dụng lại khi làm giao diện. 
 // Những hàm này phải có tham số truyền vào là một string, trong hàm chỉ làm việc set từ string truyền vào thôi. 
 //ở đây thì chỉ là this->name = name truyền vào.tươgn tự sửa hết các hàm set
-void person::setName() {
-    cout << "Enter Fullname:";
-    getline(cin, name);
+void person::setName(const string& t_name) {
+    name = t_name;
 };
 
 // ID
@@ -48,17 +53,15 @@ string person::getID() {
 string person::getPhone() {
     return phone;
 }
-void person::setPhone() {
-    cout << "Enter Phone number:";
-    getline(cin, phone);
+void person::setPhone(const string& t_phone) {
+    phone = t_phone;
 };
 // email
 string person::getEmail() {
     return email;
 }
-void person::setEmail() {
-    cout << "Enter your Email:";
-    getline(cin, email);
+void person::setEmail(const string& t_email) {
+    email = t_email;
 };
 // pass
 // ham hien thi dau * cho pass
@@ -87,10 +90,7 @@ string person::getPass() {
 string person::getRole() {
     return role;
 }
-// void person::setPass(){
-//     cout<<"Enter your password:";
-//     getline(cin,pass);
-// };
+
 void person::setPass() {
     string password, confirmPass;
     cout << "Enter password:\t";
@@ -119,9 +119,16 @@ void person::setPass() {
 }
 // sửa luôn hàm set infor cho phù hợp flow, cout<< nhập name, phone,... rồi set lại.
 void person::setInfor(person& a) {
-    a.setName();
-    a.setPhone();
-    a.setEmail();
+    string t_name, t_phone, t_email;
+    cout << "Enter the full name :";
+    getline(cin, t_name);
+    a.setName(t_name);
+    cout << "Enter the phone number :";
+    getline(cin, t_phone);
+    a.setName(t_phone);
+    cout << "Enter the email :";
+    getline(cin, t_email);
+    a.setName(t_email);
 }
 
 void person::display() {
@@ -164,4 +171,5 @@ void person::printTableHeader() {
         << endl;
     cout << "-----------------------------------------------------------------------" << endl;
 }
+
 int person::nextID = 0;  // Định nghĩa biến tĩnh

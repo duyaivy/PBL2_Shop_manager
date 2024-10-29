@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-static vector<product*> prd;
 
 string product::generatePrdID() {
         

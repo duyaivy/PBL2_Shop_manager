@@ -1,5 +1,6 @@
 #include "Employee.h"
 #include "Customer.h"
+#include "product.h"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -7,6 +8,7 @@
 #include <algorithm>
 #include <regex>
 #include <string>
+
 
 using namespace std;
 
@@ -26,10 +28,14 @@ string Employee::generateEmpID() {
         ss <<"EP"<< setw(5) << setfill('0') << nextEmpID++; 
         return ss.str();
     }
-    Employee* Employee::getEmpById(const string id){
-    for (Employee *Employee : Em){
-        if (Employee->getEmpID() == id){   
-            return Employee;
+Employee* Employee::getEmpById(const string id){
+    for (person *p : obj){
+        if (p->getID() == id){   
+            if(p->getRole() == "SALES"){
+                 Employee* emp = dynamic_cast< Employee*>(p);
+                 return emp;
+            }
+            
         }
     }
     return nullptr;
@@ -116,6 +122,9 @@ int Employee::loadFromFile(const string& filename) {
 string Employee::getRole() const {
     return role;
 }
+string Employee::getEmpID(){
+    return personID;
+}
 
 // Các chức năng quản lý khách hàng và nhân viên, chỉ khả dụng nếu role là  "MANAGER"
 //sửa lại role "adimin" thêm câu lệnh if(this->role() == "admin"){thì làm trong này}else{cout<<" không được phép...."}
@@ -174,14 +183,14 @@ string Employee::getRole() const {
 
 void Employee::manageEmployees() {
     // Kiểm tra vai trò
-    if (this->role!= "admin") {
+    if (this->role!= "MANAGER") {
         cout << "no access\n";
         return; // Kết thúc hàm nếu không phải là admin
     }
 
     int option;
     while (true) {
-         cout << "\n--- Employee Management ---\n";
+        cout << "\n--- Employee Management ---\n";
         cout << "1. View employees\n2. Search employee\n3. Add new employee\n4. Delete employee\n5. Edit employee\n0. Exit\nChoose: ";
         cin >> option;
         cin.ignore();
@@ -218,6 +227,57 @@ void Employee::manageEmployees() {
         }
     }
 }
+void Employee::manageProduct() {
+    // Kiểm tra vai trò
+    if (this->role!= "MANAGER" || this->role!= "SALES") {
+        cout << "no access\n";
+        return; // Kết thúc hàm nếu không phải là admin
+    }
+
+    int option;
+    while (true) {
+        cout << "\n--- Product Management ---\n";
+        cout << "1. View Products\n2. Search Product\n3. Add new Product\n4. Delete Product\n5. Edit Product\n0. Exit\nChoose: ";
+        cin >> option;
+        cin.ignore();
+
+        if (option == 0) {
+            cout << "exiting.\n";
+            break; 
+            }
+            
+        string brn="fdfd";
+
+        switch (option) {
+        case 1:
+            product::displayPrd();
+            break;
+        case 2:
+        // xu ly tim kiem theo ten hoac theo brand
+            cout<<"enter brand";
+            getline(cin, brn);
+            product::searchByBrand(brn);
+            
+            break;
+        case 3:// xulyhhfks
+            addEmployee(); 
+            break;
+        case 4:
+            cout<<"enter id prd delete";
+            getline(cin, brn);
+           
+            product::getPrdByID(brn)->deletePrd(); 
+            break;
+        case 5:
+            editEmployee();
+            break;
+        default:
+            cout << "invalid\n";
+        }
+    }
+}
+
+
 
 int Employee::searchCustomerByID() {
     string searchID;
@@ -495,7 +555,8 @@ void Employee::handleManagerMenu(Employee& manager) {
         cout << "\n--- Manager Menu ---\n";
         cout << "1. Manage Customers\n";
         cout << "2. Manage Employees\n";
-        cout << "3. Exit\n";
+        cout << "3. Manage Product\n";
+        cout << "4. Exit\n";
         cout << "Choose: ";
         cin >> choice;
         cin.ignore();  // Xóa bộ đệm
@@ -508,6 +569,9 @@ void Employee::handleManagerMenu(Employee& manager) {
             manager.manageEmployees();  // Gọi phương thức quản lý nhân viên
             break;
         case 3:
+            manager.manageProduct();  // Gọi phương thức quản lý nhân viên
+            break;
+        case 4:
             cout << "Exiting...\n";
             // Giải phóng bộ nhớ trước khi thoát
             for (person* p : obj) {
@@ -555,4 +619,48 @@ void Employee::handleUserRole(string role) {
         displayCustomers();
     }
 }
+int Employee::createProduct(const string& name, const string& brand, const string& detail, long long unitPrice, int quantity) {
+    product* newProduct = new product(name, brand, detail, unitPrice, quantity);
+    prd.push_back(newProduct);
+    return 1;
+}
+
+
+// Cập nhật thông tin sản phẩm
+int Employee::updateProduct(const string& productID, const string& newName, const string& newBrand, const string& newDetail, long long newUnitPrice, int newQuantity) {
+    product* p = product::getPrdByID(productID);
+    if (p) {
+        p->setInfor(*p);
+        p->setUnitPrice(newUnitPrice);
+        p->setQuantity(newQuantity);
+        return 1;
+    }
+    return 0;
+}
+
+// Hiển thị tất cả sản phẩm
+void Employee::displayProduct() {
+    for (const auto& p : prd) {
+        p->printInfor();
+    }
+}
+int Employee::searchEmployeeByID(){
+    string searchID;
+    cout << "Enter Employee ID to search: ";
+    cin >> searchID;
+    cin.ignore();
+    bool found = false;
+
+    for (person* p : obj) {
+        Employee* cust = dynamic_cast<Employee*>(p);
+        if (cust && cust->getID() == searchID) {
+            cust->display();
+            found = true;
+            break;
+        }
+    }
+    return found ? 1 : 0;
+}
+
+
 

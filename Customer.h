@@ -23,8 +23,8 @@ public:
     string getAddress();
     // đổi lại vị trí tham chiếu để 2 hàm save và load tương tự nhau,string file name rồi tới vector.
     // hàm save, load, display nên override từ person.h
-    static void saveToFile(const string& filename);
-    static int loadFromFile(const string& fileName); // Thay đổi vector thành vector<person*>);
+    static void saveToFile(const string& filename)    ;
+    static int loadFromFile(const string& fileName) ; // Thay đổi vector thành vector<person*>);
     void display() override;
     void setInfor(person& a) override;
     static Customer*getCusById(const string&);

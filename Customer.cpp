@@ -105,7 +105,7 @@ string Customer::generateCusID() {
     }
 
 
-void Customer::saveToFile(const string& fileName) {
+void Customer::saveToFile(const string& fileName)  {
     ofstream file(fileName); // Mở file
     if (!file) { // Kiểm tra xem file có mở thành công không
         cerr << "Can not open file !\n";
@@ -164,7 +164,7 @@ int Customer::loadFromFile(const string& fileName) {
             }
 
             Customer* newCustomer = new Customer( _address, _name, _phone, _email, _password);
-            list.push_back(newCustomer);
+            obj.push_back(newCustomer);
         } 
         catch (const out_of_range&) {
             return 0; // Trả về 0 nếu gặp lỗi ngoài phạm vi
