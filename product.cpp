@@ -4,7 +4,6 @@
 #include <fstream>
 #include <sstream>
 
-
 string product::generatePrdID() {
         
         stringstream ss;
@@ -102,6 +101,7 @@ int product::deletePrd(){
         prd.erase(it);
         delete this;// giai phong bo nho cho this
     }
+    return 1;
 }
 
 

@@ -15,9 +15,9 @@ int main(){
 invoiceDetail::loadFromFile(".\\csv\\detail.csv");
 invoice::loadFromFile(".\\csv\\invoice.csv");
 // invoice::getInvoiceByID("IN00002")->setQuantityInvoice("DE00002", 12);
-// invoice::getInvoiceByID("IN00001")->setQuantityInvoice("DE00003", 32);
+invoice::getInvoiceByID("IN00001")->setQuantityInvoice("DE00001", 500);
 // invoice::getInvoiceByID("IN00001")->deleteInvoice();
-// // cout<<invoice::getInvoiceByID("IN00001")->getTotalPrice();
+// cout<<invoice::getInvoiceByID("IN00001")->getTotalPrice();
 
 
 invoice::display();

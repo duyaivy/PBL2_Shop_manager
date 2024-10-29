@@ -1,33 +1,29 @@
 #ifndef PERSON_H
 #define PERSON_H
 
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include "vector.h"
-#include <conio.h>
-#include <sstream> // Để sử dụng stringstream
+class person {
+protected:
+    string ID, name, phone, email, pass, role;
+    virtual string generateID() = 0;
+public:
 
-using namespace std;
+    person(const string& _name, const string& _phone, const string& _email, const string& _pass, const string& _role = "CUSTOMER");
 
-
-class person{
-    protected:
-    string personID, name, phone, email, pass, role;
-    static int nextID;
-    string generateID(); 
-    public:
-    person(const string _name ="unknown",const string _phone ="unknown",const string _email="unknown",const string _pass="unknown",const string _role="customer");
-    
     static void clearPerson();
-    static void display();
-    string getName(); void setName(); 
-    string getID();  string getRole();
-    string getPhone(); void setPhone(); 
-    string getEmail(); void setEmail(); 
-    string getPass(); void setPass(); string hidenPass();
-    static void setInfor(person &a);  static void printTableHeader();
+    virtual void display() = 0;//ham ao
+    // phải sửa lại các hàm setName, set.... để tái sử dụng lại khi làm giao diện. 
+    // Những hàm này phải có tham số truyền vào là một string, trong hàm chỉ làm việc set từ string truyền vào thôi. 
+    string getName(); void setName(const string&);
+    string getID(); string getRole();
+    string getPhone(); void setPhone(const string& );
+    string getEmail(); void setEmail(const string&);
+    string getPass(); void setPass(const string&); string hidenPass();
+    virtual void setInfor() = 0;  static void printTableHeader(); // ham ao
     static void printInfor(const person* person);
-    static int login(string id, string pw, person *p);
+    static int login(string id, string pw, person* p);
+    
+    // virtual int loadFromFile(const string& filename)=0;
+    // virtual void saveToFile(const string& filename)=0;
 };
+static vector<person*> obj;
 #endif
