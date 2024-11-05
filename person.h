@@ -1,6 +1,8 @@
 #ifndef PERSON_H
 #define PERSON_H
-
+#include<string>
+#include"vector.h"
+using namespace std;
 class person {
 protected:
     string ID, name, phone, email, pass, role;
@@ -18,7 +20,8 @@ public:
     string getPhone(); void setPhone(const string& );
     string getEmail(); void setEmail(const string&);
     string getPass(); void setPass(const string&); string hidenPass();
-    virtual void setInfor() = 0;  static void printTableHeader(); // ham ao
+    virtual void setInfor() = 0;  
+    static void printTableHeader(); // ham ao
     static void printInfor(const person* person);
     static int login(string id, string pw, person* p);
     

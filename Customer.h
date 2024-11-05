@@ -21,6 +21,7 @@ public:
     void setInfor() override;
     static Customer*getCusById(const string&);
     int deleteCustomer();
+    static void printTableHeader() ; 
 };
 
 #endif

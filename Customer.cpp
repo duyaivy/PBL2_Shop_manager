@@ -120,14 +120,12 @@ string Customer::getAddress() {
 
 Customer* Customer::getCusById(const string& cusID) {
     for (person *p : obj) {
-     Customer* cus = dynamic_cast<Customer*>(p);
-     if(cus){
-        if (cus->getID() == cusID) {
+     
+        if (p->getID() == cusID) {
+            Customer* cus = dynamic_cast<Customer*>(p);
             return cus; // Trả về con trỏ đến đối tượng Customer nếu tìm thấy
         }
      }
-        
-    }
 return nullptr; // Trả về nullptr nếu không tìm thấy
 }
 string Customer::generateID() {
@@ -139,8 +137,8 @@ string Customer::generateID() {
 
 
 void Customer::saveToFile(const string& fileName)  {
-    ofstream file(fileName); // Mở file
-    if (!file) { // Kiểm tra xem file có mở thành công không
+    ofstream file(fileName, ios::trunc); // Mở file
+    if (!file) { // Kiểm tra xem file có mở 1thành công không
         cerr << "Can not open file !\n";
         return;
     }
@@ -155,7 +153,6 @@ void Customer::saveToFile(const string& fileName)  {
              << customer->getPhone() << ", "
              << customer->getEmail() << ", "
              << customer->getPass() << ", "
-             << customer->getRole() << ", "
              << customer->getAddress() << ", "<<endl;
     }
     }
@@ -171,14 +168,13 @@ int Customer::loadFromFile(const string& fileName) {
     string line;
     while (getline(file, line)) {
         stringstream ss(line);
-        string _customerID, _address, _name, _phone, _email, _password,_role;
+        string _customerID, _address, _name, _phone, _email, _password;
 
         getline(ss, _customerID, ',');
         getline(ss, _name, ',');
         getline(ss, _phone, ',');
         getline(ss, _email, ',');
         getline(ss, _password,',');
-        getline(ss, _role, ',');
         getline(ss, _address);
 
         try {
@@ -247,4 +243,14 @@ int Customer::deleteCustomer(){
     }
     return 1;
 }
+void Customer::printTableHeader() { 
+    cout << left << setw(10) << "ID"
+         << setw(20) << "Full Name"
+         << setw(30) << "Email"
+         << setw(15) << "Phone"
+         << setw(20) << "Address" // Thêm cột "Address"
+         << endl;
+    cout << "-------------------------------------------------------------------------------" << endl;
+}
+
 

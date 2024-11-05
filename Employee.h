@@ -11,8 +11,8 @@ public:
     void display() override;
     void updateInfo();
     int deleteEmployee();
-    void saveToFile( const string& filename); 
-    int loadFromFile(const string& filename) ; 
+    static void saveToFile( const string& filename); 
+    static int loadFromFile(const string& filename) ; 
     void manageCustomers();
     void manageEmployees();
     void manageProduct();

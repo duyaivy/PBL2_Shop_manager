@@ -14,7 +14,9 @@
 
 
 Employee::Employee(const string& name, const string& phone, const string& email, const string& password, const string& role)
-    : person(name, phone, email, password,role) {}
+    : person(name, phone, email, password,role) {
+        this->ID= generateID();
+    }
 
 void Employee::display() {
     cout << setw(10) << getID()
@@ -32,10 +34,10 @@ string Employee::generateID() {
 Employee* Employee::getEmpById(const string id){
     for (person *p : obj){
         if (p->getID() == id){   
-            if(p->getRole() == "SALES"){
+            
                  Employee* emp = dynamic_cast< Employee*>(p);
                  return emp;
-            }
+            
             
         }
     }
@@ -119,6 +121,7 @@ void Employee::updateInfo() {
                 }else{
                     cout<<"Wrong old password, so you can't reset password!"<<endl;
                 }
+                break;
             }
 
             case 4: {
@@ -143,7 +146,7 @@ void Employee::updateInfo() {
 }
 
 void Employee::saveToFile( const string& filename) {
-    ofstream file(filename);
+    ofstream file(filename, ios::trunc);
     if (!file) {
         cerr << "Error opening file for writing.\n";
         return;
@@ -152,7 +155,7 @@ void Employee::saveToFile( const string& filename) {
     for ( person* p : obj) {
         Employee* emp = dynamic_cast< Employee*>(p); // Chỉ lưu thông tin nhân viên
         if (emp) {
-            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << "," << emp->getRole() << endl;
+            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << ","<<emp->getPass() <<"," <<emp->getRole() << endl;
         }
     }
 
@@ -168,13 +171,14 @@ int Employee::loadFromFile(const string& filename) {
 
     string line;
     while (getline(file, line)) {
-        string id, name, phone, email, role;
+        string id, name, phone, email,pass, role;
 
         stringstream ss(line);
         getline(ss, id, ',');
         getline(ss, name, ',');
         getline(ss, phone, ',');
         getline(ss, email, ',');
+        getline(ss, pass, ',');
         getline(ss, role);
 
         try {
@@ -193,7 +197,9 @@ int Employee::loadFromFile(const string& filename) {
             if (!regex_match(email, emailPattern)) {
                 throw invalid_argument("Invalid email format.");
             }
-           new Employee(name, phone, email, role);
+           Employee* newEmp = new Employee(name, phone, email,pass, role);
+           obj.push_back(newEmp);
+
         } 
         catch (const invalid_argument&) {
             return 0;  // Trả về 0 nếu có lỗi trong dữ liệu
@@ -215,28 +221,28 @@ int Employee::loadFromFile(const string& filename) {
 
 
     // rồi đã kiểm tra nếu nó là role "sale chưa? "
-    void Employee::manageCustomers() {
+void Employee::manageCustomers() {
     // Kiểm tra vai trò
-    if (this->role!= "MANAGER") {
-        cout << "no access\n";
+    if (this->role != "MANAGER") {
+        cout << "No access\n";
         return; // Kết thúc hàm nếu không phải là admin
     }
 
     int option;
     while (true) {
-        cout << "\n--- Customer managent ---\n";
+        cout << "\n--- Customer management ---\n";
         cout << "1. View customers\n2. Search customer\n3. Add new customer\n4. Delete customer\n5. Edit customer\n0. Exit\nChoose: ";
         cin >> option;
         cin.ignore();
 
         if (option == 0) {
-           cout << "Exiting customer management.\n";
+            cout << "Exiting....\n";
             break;
         }
 
         switch (option) {
         case 1:
-            person::printTableHeader();
+            Customer::printTableHeader();
             for (person* p : obj) {
                 Customer* cust = dynamic_cast<Customer*>(p); // Chỉ hiển thị khách hàng
                 if (cust) {
@@ -244,11 +250,15 @@ int Employee::loadFromFile(const string& filename) {
                 }
             }
             break;
-        case 2:{
+        case 2: {
             string searchID;
-            cout << "Enter customer ID to search: ";
-            cin >> searchID;
+            cout << "Enter customer ID to search (0 to cancel): ";
+            cin>>searchID;
             cin.ignore();
+            if (searchID == "0") {
+                cout << "Canceled searching.\n";
+                break;
+            }
             bool found = false;
 
             for (person* p : obj) {
@@ -259,25 +269,28 @@ int Employee::loadFromFile(const string& filename) {
                     break;
                 }
             }
-            if(!found){
-                cout<<"Not Found Customer has id: "<<searchID<<endl;
+            if (!found) {
+                cout << "Not Found  " << searchID << endl;
             }
             break;
         }
-            
-        case 3:
+        case 3: {
             int choice;
             cout << "Choose how to add a customer:\n";
             cout << "1. Add customer manually\n";
             cout << "2. Add customers from file\n";
-            cout << "Choose an option: ";
+            cout << "Choose an option (0 to cancel): ";
             cin >> choice;
             cin.ignore(); // Clear input buffer
 
+            if (choice == 0) {
+                cout << "Canceled adding customer.\n";
+                break;
+            }
+
             switch (choice) {
             case 1: {
-                
-                string Nname, Nphone, Nemail, Npassword, confirmPass,Naddress;
+                string Nname, Nphone, Nemail, Npassword, confirmPass, Naddress;
 
                 cout << "Enter details for the new customer:" << endl;
 
@@ -289,9 +302,10 @@ int Employee::loadFromFile(const string& filename) {
 
                 cout << "Enter email: ";
                 getline(cin, Nemail);
-                
+
                 cout << "Enter address: ";
                 getline(cin, Naddress);
+
                 // Nhập và xác nhận mật khẩu
                 do {
                     cout << "Enter password: ";
@@ -306,53 +320,70 @@ int Employee::loadFromFile(const string& filename) {
                 } while (Npassword != confirmPass);
 
                 // Thêm khách hàng vào danh sách
-            new Customer( Nname, Nphone, Nemail, Npassword,Naddress);
-            cout << "Customer " << name << " added successfully.\n";
+                Customer* newCustomer = new Customer(Nname, Nphone, Nemail, Npassword, Naddress);
+                obj.push_back(newCustomer);
+                cout << "Customer " << Nname << " added successfully.\n";
+                Customer::saveToFile("customers.csv");
                 break;
             }
             case 2: {
                 // Thêm khách hàng từ file
                 string fileName;
-                cout << "Enter the filename: ";
+                cout << "Enter the filename (0 to cancel): ";
                 getline(cin, fileName);
-               Customer:loadFromFile(fileName);
+                if (fileName == "0") {
+                    cout << "Canceled loading from file.\n";
+                    break;
+                }
+                Customer::loadFromFile(fileName);
                 break;
             }
             default:
-                cout << "Invalid option. Please choose 1 or 2.\n";
+                cout << "Invalid option. .\n";
                 break;
             }
             break;
-                case 4:{
-                string id;
-                cout << "Enter customer ID to delete: ";
-                cin >> id;
-                cin.ignore();
-                if(Customer::getCusById(id)){
-                Customer::getCusById(id)->deleteCustomer();
-                }else{
-                    cout<<"Don't have id: "<<id<<endl;
-                    }
+        }
+        case 4: {
+            string id;
+            cout << "Enter customer ID to delete (0 to cancel): ";
+            cin>>id;
+            cin.ignore();
+            if (id == "0") {
+                cout << "Canceled deleting customer.\n";
                 break;
-                }
-                    
-                case 5:{
-                string id;
-                cout << "Enter customer ID to edit: ";
-                cin >> id;
-                cin.ignore();
-                if(Customer::getCusById(id)){
-                Customer::getCusById(id)->updateInfo();
-                }else{
-                    cout<<"Don't have id: "<<id<<endl;
-                    }
-                break;
-                }                    
-                default:
-                    cout << "Invalid option. Please choose a valid option.\n";
-                }
             }
+            if (Customer::getCusById(id)) {
+                Customer::getCusById(id)->deleteCustomer();
+                Customer::saveToFile("customers.csv");
+            } else {
+                cout << "Don't have id: " << id << endl;
+            }
+            break;
+        }
+        case 5: {
+            string id;
+            cout << "Enter customer ID to edit (0 to cancel): ";
+           cin>>id;
+           cin.ignore();
+            if (id == "0") {
+                cout << "Canceled editing customer.\n";
+                break;
+            }
+            if (Customer::getCusById(id)) {
+                Customer::getCusById(id)->updateInfo();
+                
+            } else {
+                cout << "Don't have id: " << id << endl;
+            }
+            break;
+        }
+        default:
+            cout << "Invalid option.\n";
+        }
+    }
 }
+
     //nên xây dựng while nhập vào 0 nếu muốn thoát chế độ quản lí cus, còn lại cứ nhập vào những số khác thì cứ để làm rồi quay lại bắt chọn tính năng
 
 // tương tự phải kiểm tra role
@@ -378,7 +409,7 @@ void Employee::manageEmployees() {
 
         switch (option) {
         case 1:
-            person::printTableHeader();
+            Customer::printTableHeader();
             for (person* p : obj) {
                 Employee* emp = dynamic_cast<Employee*>(p); // Chỉ hiển thị nhân viên
                 if (emp) {
@@ -395,14 +426,26 @@ void Employee::manageEmployees() {
             // Nhập thông tin của nhân viên mới
             cout << "Enter Name: ";
             getline(cin, Nname);
+             if(Nname=="0"){
+                break;
+             }
             cout << "Enter Phone: ";
             getline(cin, Nphone);
+             if(Nphone=="0"){
+                break;
+             }
             cout << "Enter Email: ";
             getline(cin, Nemail);
+             if(Nname=="0"){
+                break;
+             }
 
             do {
                     cout << "Enter password: ";
                     Npassword = hidenPass();
+                     if(Npassword=="0"){
+                      break;
+                      }
 
                     cout << "Confirm password: ";
                     confirmPass = hidenPass();
@@ -412,19 +455,26 @@ void Employee::manageEmployees() {
                     }
                 } while (Npassword != confirmPass); 
             // Tạo đối tượng Employee mới và thêm vào danh sách
-           new Employee(Nname, Nphone, Nemail, Npassword, "SALES");
+           Employee* newEmployee = new Employee(Nname, Nphone, Nemail, Npassword, "SALES");
+           obj.push_back(newEmployee);
 
-            cout << "Employee " << name << " added successfully.\n";
+
+            cout << "Employee " << Nname << " added successfully.\n";
+            Employee::saveToFile("employees.csv");
             break;
         }
           
         case 4:{
             string id;
-            cout << "Enter Enployee ID to delete: ";
+            cout << "Enter Employee ID to delete: ";
             cin >> id;
             cin.ignore();
+             if(id=="0"){
+                break;
+             }
             if(Employee::getEmpById(id)){
             Employee::getEmpById(id)->deleteEmployee();
+            Employee::saveToFile("employees.csv");
             }else{
                 cout<<"Don't have id: "<<id<<endl;
                 }
@@ -436,8 +486,12 @@ void Employee::manageEmployees() {
                 cout << "Enter Employee ID to edit: ";
                 cin >> id;
                 cin.ignore();
+                 if(id=="0"){
+                    break;
+                 }
                 if(Employee::getEmpById(id)){
                 Employee::getEmpById(id)->updateInfo();
+                Employee::saveToFile("employees.csv");
                 }else{
                     cout<<"Don't have id: "<<id<<endl;
                     }
@@ -450,7 +504,7 @@ void Employee::manageEmployees() {
 }
 void Employee::manageProduct() {
     // Kiểm tra vai trò
-    if (this->role!= "MANAGER" || this->role!= "SALES") {
+    if (this->role!= "MANAGER") {
         cout << "No access\n";
         return; // Kết thúc hàm nếu không phải là admin
     }
@@ -477,6 +531,9 @@ void Employee::manageProduct() {
             string namee;
             cout<<"Enter Name of product to search: ";
             getline(cin, namee);
+             if(namee=="0"){
+                break;
+             }
             if(!product::searchByName(namee)){
                 cout<<"Not Found product name "<<namee<<endl;
             }
@@ -488,10 +545,19 @@ void Employee::manageProduct() {
             int _quantity;
             cout<<"Enter name of product:"<<endl;
              getline(cin, _name);
+             if(_name=="0"){
+                break;
+             }
             cout<<"Enter brand of product:"<<endl;
              getline(cin, _brand);
+             if(_brand=="0"){
+                break;
+             }
             cout<<"Enter detail of product:"<<endl;
              getline(cin, _detail);
+             if(_detail=="0"){
+                break;
+             }
             cout<<"Enter unitPrice of product:"<<endl;
              cin>>_unitPrice;
             cout<<"Enter quantity of product:"<<endl;
@@ -503,7 +569,7 @@ void Employee::manageProduct() {
             break;
         case 4:{
             string _id;
-            cout<<"Enter id of Product to delete";
+            cout<<"Enter id of Product to delete: ";
             getline(cin, _id);
            if(product::getPrdByID(_id)){
             product::getPrdByID(_id)->deletePrd(); 
@@ -515,7 +581,7 @@ void Employee::manageProduct() {
         }
         case 5:{
             string _id;
-            cout<<"Enter id of Product to edit";
+            cout<<"Enter id of Product to edit: ";
             getline(cin, _id);
            if(product::getPrdByID(_id)){
             product::setInfor(*product::getPrdByID(_id)); 
@@ -530,43 +596,6 @@ void Employee::manageProduct() {
             cout << "invalid\n";
         }
     }
-}
-
-
-int Employee::deleteEmployee() {
-    string id;
-    cout << "Enter employee ID to delete: ";
-    cin >> id;
-    cin.ignore();
-
-    auto it = remove_if(obj.begin(), obj.end(), [&](person* p) {
-        Employee* emp = dynamic_cast<Employee*>(p);  // Chỉ xóa đối tượng là Employee
-        return emp && emp->getID() == id;
-        });
-
-    if (it != obj.end()) {
-        delete* it;
-        obj.erase(it, obj.end());
-        cout << "Employee deleted successfully.\n";
-    }
-    else {
-        cout << "Employee not found.\n";
-    }
-}
-
-void Employee::setInfor() {
-    
-    string name,phone,email;
-     cout<<"Enter the name";
-     getline(cin,name);
-     setName(name);
-     cout<<"Enter the phone";
-     getline(cin,phone);
-     setPhone(phone);
-     cout<<"Enter the email";
-     getline(cin,email);
-     setEmail(email);
-
 }
 
 // xoá hàm này vì chỉ có 1 quản lý nếu một nhân viên được thay đổi role tự ý lên quản lí thì bài toán thực tế không có cái này
@@ -607,7 +636,58 @@ void Employee::handleManagerMenu(Employee& manager) {
         }
     }
 }
+void Employee::handleEmployeeMenu(Employee& sale){
+    if(sale.role!="SALES"){
+        cout<<"no access\n";
+        return;
+    }
+     while(true){
+        int choice;
+        cout<<"1.View Customer\n";
+        cout<<"2.View Product\n";
+        cout<<"3.Exit\n";
+        cout<<"Choose:\n";
+        cin>> choice;
+        cin.ignore();
+        switch(choice){
+        case 1:
+            if (obj.empty()) {
+                    cout << "No customers found.\n";  
+                } else {
+                    cout << "\n--- Customer List ---\n";
+                    person::printTableHeader();
+                    for (person* p : obj) {
+                        Customer* cust = dynamic_cast<Customer*>(p); // Chỉ hiển thị khách hàng
+                        if (cust) {
+                            cust->display();
+                        }
+                    }
+                }
+                break;
+        case 2: 
+            if(prd.empty()){
+                cout <<"No product found.\n";
+            }
+            cout << "\n--- Product List ---\n";
+            product::displayPrd();
+            break;
+        case 3:
+            cout << "Exiting...\n";
+            // Giải phóng bộ nhớ trước khi thoát
+            for (person* p : obj) {
+                delete p;
+            }
+            obj.clear();
 
+            return;  // Thoát khỏi hàm
+        default:
+            cout << "Invalid option. Please select again.\n";
+        }
+
+
+        }
+
+  }
 
 void Employee::displayCustomers() {
     cout << "\n--- Customer List ---\n";
@@ -625,6 +705,9 @@ int Employee::searchEmployeeByID(){
     cout << "Enter Employee ID to search: ";
     cin >> searchID;
     cin.ignore();
+    if(searchID=="0"){
+        return 0;
+    }
     bool found = false;
 
     for (person* p : obj) {
@@ -662,3 +745,4 @@ int Employee::deleteEmployee(){
     }
     return 1;
 }
+

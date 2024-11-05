@@ -1,32 +1,82 @@
 #include "Employee.h"
+#include "product.h"
+#include "person.h"
 #include "Customer.h"
 #include <iostream>
-#include <vector>
+#include "vector.h"  
+#include <string>
 
 using namespace std;
-// bên person.h đã có 1 vector để chứa cho cả cuss và employee rồi thì ở đây sử dụng nó.
-// ngoài ra không nên khai báo những vector chứa ở trong hàm main, khai báo trên hàm main. 
+
+int product::nextPrdID = 1; 
+int Employee::nextEmpID = 1;
+int Customer::nextCusID = 1;
+
 int main() {
-    vector<person*> persons;  // Dùng cho cả Customer và Employee
+    // Nạp dữ liệu từ các file CSV
+    if (Employee::loadFromFile("employees.csv") == 0) {
+        cerr << "Failed to load employee data.\n";
+    }
+    if (Customer::loadFromFile("customers.csv") == 0) {
+        cerr << "Failed to load customer data.\n";
+    }
+    if (product::loadFromFile("product.csv") == 0) {
+        cerr << "Failed to load product data.\n";
+    }
 
-    // Tải dữ liệu từ file CSV cho khách hàng
-    Customer::loadFromFile("customers.csv");
+    string id, password;
 
-    // Tải dữ liệu từ file CSV cho nhân viên
-    Employee::loadFromFile("employees.csv");
-    // Chuyển đổi kiểu nếu cần
+    while (true) {
+        cout << "Enter your ID: ";
+        cin >> id;
+        cin.ignore();
+        
+    
+;
+        // Kiểm tra nếu người dùng muốn thoát
+        if (id == "0") {
+            cout << "Exiting...\n";
+            return 0; // Thoát chương trình
+        }
 
-    // Lấy vai trò người dùng
-    string role = Employee::getUserRole();
+        Employee* emp = Employee::getEmpById(id);
+        if (!emp) {
+            cout << "Invalid ID. Please try again or enter '0' to exit.\n";
+            continue; // Yêu cầu nhập lại ID
+        }
 
-    // Xử lý theo vai trò (Manager hoặc Sales)
-    Employee::handleUserRole(role); // Điều chỉnh lại để chỉ cần 2 tham số nếu cần
+        cout << "Enter your password: ";
+        cin >> password;
+        cin.ignore();
+       
+       
 
-    // Giải phóng bộ nhớ cho danh sách khách hàng
-    for (person* p : persons) {
+        // Kiểm tra mật khẩu
+        if (emp->getPass() == password) {
+            // Đăng nhập thành công
+            if (emp->getRole() == "MANAGER") {
+                Employee::handleManagerMenu(*emp);
+            } else if (emp->getRole() == "SALES") {
+                Employee::handleEmployeeMenu(*emp);
+            }
+            break; // Thoát khỏi vòng lặp khi đăng nhập thành công
+        } else {
+            cout << "Invalid password. Please try again or enter '0' to exit.\n";
+        }
+    }
+
+    // Sau khi thực hiện các tác vụ, lưu dữ liệu lại vào các file CSV
+    Employee::saveToFile("employees.csv");
+    Customer::saveToFile("customers.csv");
+    product::saveToFile("products.csv");
+
+    // Giải phóng bộ nhớ cho các đối tượng trong obj và prd
+    for (auto p : obj) {
         delete p;
     }
-    persons.clear();
+    for (auto p : prd) {
+        delete p;
+    }
 
     return 0;
 }
