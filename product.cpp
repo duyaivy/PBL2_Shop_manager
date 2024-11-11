@@ -1,7 +1,11 @@
-#include "product.h"
-static vector<product*> prd;
+#include "./header/Product.h"
+#include <iomanip>
+#include <algorithm>
+#include <fstream>
+#include <sstream>
+ cvector<Product*> Product::prd;
 
-string product::generatePrdID() {
+string Product::generatePrdID() {
         
         stringstream ss;
         ss <<"PD"<< setw(5) << setfill('0') << nextPrdID++; 
@@ -11,7 +15,7 @@ string product::generatePrdID() {
 static string formatCurrency(long long number) {
     stringstream ss;
     string result;
-    ss << number;     
+    ss << number; 
     string strNumber = ss.str();
     int len = strNumber.length();
     int count = 0;
@@ -31,23 +35,38 @@ int convertStringToInt(const string& str) {
     string numberPart = str.substr(2);
     return stoi(numberPart);
 }
-product::product(const string name ,const string brand ,const string detail,const long long unitPrice , const int quantity){
+Product::Product(const string name ,const string brand ,const string detail,const long long unitPrice,const long long importPrice , const int quantity,const int qntSell){
     productID = generatePrdID();
     prdBrand = brand; prdName = name;
-    prdDetail = detail;this->quantity = quantity; this->unitPrice = unitPrice;
-    prd.push_back(this);
+    prdDetail = detail;
+    this->quantity = quantity; 
+    this->qntSell = qntSell;
+    this->unitPrice = unitPrice;
+    this->importPrice = importPrice;
+    this->isDelete = 0;    
 }
-void product::getInfor(const product *p){
-        cout << left << setw(10) << "ID:" << setw(10) << p->productID << endl
-             << left << setw(10) << "Name:" << setw(20) << p->prdName << endl
-             << left << setw(10) << "Brand:" << setw(30) << p->prdBrand << endl
-             << left << setw(10) << "Detail:" << setw(50) << p->prdDetail << endl
-             << left << setw(10) << "Price:" << formatCurrency(p->unitPrice)  <<endl
-             << left << setw(10) << "Quantity:" << setw(10) << p->quantity << endl
+void Product::getInfor(const Product *p){
+        // cout << left << setw(15) << "ID:" << setw(15) << p->productID << endl;
+        cout<< left << setw(18) << "Name:" << setw(20) << p->prdName << endl
+             << left << setw(18) << "Brand:" << setw(30) << p->prdBrand << endl
+             << left << setw(18) << "Detail:" << setw(50) << p->prdDetail << endl
+             << left << setw(18) << "Price:" << formatCurrency(p->unitPrice)  <<endl
+             << left << setw(18) << "Quantity remain:" << setw(20) << p->quantity - p->qntSell << endl
              << "----------------------------------------" << endl;
-
 }
-void product::setInfor(product &p){
+
+void Product::getInforToManager(const Product *p){
+        cout << left << setw(18) << "ID:" << setw(18) << p->productID << endl
+             << left << setw(18) << "Name:" << setw(20) << p->prdName << endl
+             << left << setw(18) << "Brand:" << setw(30) << p->prdBrand << endl
+             << left << setw(18) << "Detail:" << setw(50) << p->prdDetail << endl
+             << left << setw(18) << "UnitPrice:" << formatCurrency(p->unitPrice)  <<endl
+             << left << setw(18) << "ImportPrice:" << formatCurrency(p->importPrice)  <<endl
+             << left << setw(18) << "Quantity sold:" << setw(20) << p->qntSell << endl
+             << left << setw(18) << "Quantity remain:" << setw(20) << (p->quantity) - (p->qntSell) << endl
+             << "----------------------------------------" << endl;
+}
+void Product::setInfor(Product &p){
     cout<<"Enter Name Product:";
     getline(cin,p.prdName);
     cout<<"Enter Brand:";
@@ -59,55 +78,67 @@ void product::setInfor(product &p){
     cout<<"Enter Quantity:";
     cin>>p.quantity;
     }
-void product::setQuantity( const int count){
+void Product::setQuantity( const int count){
     this->quantity = count;
 }
-void product::setUnitPrice(const long long price){
+void Product::setUnitPrice(const long long price){
     this->unitPrice = price;
 }
 // tim kiem nhi phan
-int product::searchByID(string ID ){
-    int id = convertStringToInt(ID);
-     int left = 0;
-    int right = prd.size() - 1;
+int Product::searchByID(string ID){
+    // int id = convertStringToInt(ID);
+    //  int left = 0;
+    // int right = prd.getSize() - 1;
     
-    while (left <= right) {
-        int mid = left + (right - left) / 2;
-        int currentID = convertStringToInt(prd[mid]->productID);  // Lấy ID của product tại vị trí giữa
+    // while (left <= right) {
+    //     int mid = left + (right - left) / 2;
+    //     int currentID = convertStringToInt(prd[mid]->productID);  // Lấy ID của Product tại vị trí giữa
         
-        if (currentID == id) {
-            // In ra thông tin sản phẩm khi tìm thấy
-            cout<<"Found!!"<<endl;
-            prd[mid]->getInfor(prd[mid]);
-            return 1;  // Tìm thấy
-        }
+    //     if (currentID == id) {
+    //         // In ra thông tin sản phẩm khi tìm thấy
+    //         cout<<"Found!!"<<endl;
+    //         prd[mid]->getInfor(prd[mid]);
+    //         return 1;  // Tìm thấy
+    //     }
         
-        if (currentID < id) {
-            left = mid + 1; 
-        } else {
-            right = mid - 1; 
+    //     if (currentID < id) {
+    //         left = mid + 1; 
+    //     } else {
+    //         right = mid - 1; 
+    //     }
+    // }
+    for(Product *p : prd){
+        if(p->getPrdID() == ID){
+            p->getInfor(p);
+            return 1;
         }
     }
-    
     return 0;
-
 }
 
 
-int product::deletePrd(){
+int Product::deletePrd(){
     auto it = find(prd.begin(), prd.end(), this);
     if (it != prd.end()) {
         prd.erase(it);
         delete this;// giai phong bo nho cho this
     }
+    return 1;
 }
 
 
-void product:: displayPrd(){
-    for (product* product : prd) {
-            product->getInfor(product);
+void Product:: displayAllPrd(){
+    for (Product* Product : prd) {
+            Product->getInfor(Product);
         }
 }
+void Product:: displayAllPrdToManager(){
+    for (Product* Product : prd) {
+            Product->getInforToManager(Product);
+        }
+}
+
+
 
 // Hàm chuyển chuỗi về chữ thường
 string toLowerCase(const string& str) {
@@ -116,47 +147,47 @@ string toLowerCase(const string& str) {
     return lowerStr;
 }
 // hàm tìm kiếm bằng từ khoá nếu tên là "nguyen van a" nếu tham số truyền vào là "van a" thì vẫn tìm được và in ra
-int product::searchByName(string word) {
+int Product::searchByName(string word) {
     string lowerWord = toLowerCase(word); 
     int cnt=0;//dung bien cnt de luu ket qua tra ve 1 neu tim thay va 0 neu khong tim thay;
-        for (product* p : prd) {
+        for (Product* p : prd) {
             string lowerName = toLowerCase(p->prdName);
            if (lowerName.find(lowerWord) != std::string::npos) {
            // xuli sau khi tim thay
            cnt++; 
-           product::getInfor(p);
+           Product::getInfor(p);
             }
         }
 return (cnt!= 0 ) ? 1:0;
 }
-int product::searchByBrand(string brand ){
+int Product::searchByBrand(string brand ){
    string lowerBrand = toLowerCase(brand); 
     int cnt=0;//dung bien cnt de luu ket qua tra ve 1 neu tim thay va 0 neu khong tim thay;
-        for (product* p : prd) {
+        for (Product* p : prd) {
             string lowerName = toLowerCase(p->prdBrand);
            if (lowerName.find(lowerBrand) != std::string::npos) {
            // xuli sau khi tim thay
            cnt++; 
-           product::getInfor(p);
+           Product::getInfor(p);
             }
         }
 return (cnt!= 0 ) ? 1:0;
 }
 
-int product::saveToFile(string fileName) {
+int Product::saveToFile(string fileName) {
         ofstream file(fileName);
         if (!file) {
             cerr << "Error opening file for writing.\n";
             return 0;
         }
-        for (product *p: prd) {
-            file << p->productID << "," << p->prdName << ","<< p->prdBrand<<"," << p->prdDetail << "," << p->unitPrice << "," << p->quantity << endl;
+        for (Product *p: prd) {
+            file << p->productID << "," << p->prdName << ","<< p->prdBrand<<"," << p->prdDetail << "," << p->unitPrice << "," << p->importPrice << "," << p->quantity<< "," << p->qntSell << endl;
         }
         file.close();
         return 1;
 }
 
-int product::loadFromFile(string fileName) {
+int Product::loadFromFile(string fileName) {
         ifstream file(fileName);
         if (!file) {
             cerr << "Error opening file for reading.\n";
@@ -165,22 +196,30 @@ int product::loadFromFile(string fileName) {
         string line;
         while (getline(file, line)) {
             stringstream ss(line);
-            string id, name, brand, detail, price,quantity;
+            string id, name, brand, detail, price, importPrice,quantity,qntSell;
             getline(ss, id, ',');
             getline(ss, name, ',');
             getline(ss, brand, ',');
             getline(ss, detail, ',');
             getline(ss, price, ',');
-            getline(ss, quantity);
+            getline(ss, importPrice, ',');
+            getline(ss, quantity, ',');
+            getline(ss, qntSell);
 
         // kiem tra gia tri co hop le hay khong
          try {
             long long priceValue = stoll(price);
-            int quantityValue = stoi(quantity);        
+            int quantityValue = stoi(quantity);
+            long long importPriceValue = stoll(importPrice);
+            int qntSellValue = stoi(qntSell);        
             if (priceValue < 0 || quantityValue < 0) {
                 return 0; 
             }
-            new product(name, brand, detail, priceValue,quantityValue);
+             if (importPriceValue < 0 || qntSellValue < 0) {
+                return 0; 
+            }
+            Product *p = new  Product(name, brand, detail, priceValue,importPriceValue,quantityValue,qntSellValue);
+            prd.push_back(p);
         }    catch (const std::invalid_argument& e) {
              return 0; // Trả về 0 nếu gặp lỗi khi chuyển đổi
             }catch (const std::out_of_range& e) {
@@ -190,4 +229,62 @@ int product::loadFromFile(string fileName) {
         
         file.close();
 return 1;
+}
+Product* Product::getPrdByID(const string id){
+    for (Product *p : prd){
+        if (p->getPrdID() == id){   
+            return p;
+        }
+    }
+return nullptr; 
+}
+void Product::printInfor(){
+ cout << left << setw(10) << "ID:" << setw(10) << productID << endl
+    << left << setw(10) << "Name:" << setw(20) << prdName << endl
+    << left << setw(10) << "Brand:" << setw(30) << prdBrand << endl
+    << left << setw(10) << "Detail:" << setw(50) << prdDetail << endl
+    << left << setw(10) << "Price:" << formatCurrency(unitPrice)  <<endl
+    << left << setw(10) << "Quantity:" << setw(10) << quantity << endl
+    << "----------------------------------------" << endl;
+}
+
+// get 
+string Product::getPrdID(){
+    return productID;
+    }
+string Product::getPrdName(){
+    return prdName;
+    }
+string Product::getPrdBranch(){
+    return prdBrand;
+    }
+string Product::getPrdDetail(){
+    return prdDetail;
+    }
+long long Product::getUnitPrice(){
+    return unitPrice;
+    }
+int Product::getQuantity(){
+    return quantity;
+    }
+    
+void Product::setImportPrice(long long price){
+    this->importPrice = price;
+}
+void Product::setQuantitySell(int qnt){
+    this->qntSell = qnt;
+
+}
+void Product::setDelete(int del){
+    this->isDelete = del;
+
+}
+long long Product::getImportPrice(){
+    return importPrice;
+}
+int Product::getQuantitySell(){
+    return qntSell;
+}
+int Product::getDelete(){
+    return isDelete;
 }
