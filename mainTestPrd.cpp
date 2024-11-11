@@ -1,30 +1,38 @@
 #include<iostream>
-#include"invoiceDetail.h"
-#include"product.h"
-#include"invoice.h"
+#include"./header/InvoiceDetail.h"
+#include"./header/Product.h"
+#include"./header/Invoice.h"
+#include"./header/Employee.h"
+#include"./header/Customer.h"
 using namespace std;
-int product::nextPrdID = 1;
-int invoiceDetail::nextDetailID = 1;
-int invoice::nextInvoiceID = 1;
+int Product::nextPrdID = 1;
+int InvoiceDetail::nextDetailID = 1;
+int Invoice::nextInvoiceID = 1;
+int Employee::nextEmpID = 1;
+int Customer::nextCusID = 1;
 
 int main(){
-  product* p1 = new product("Laptop A", "Brand A", "Detail A", 1000, 10);
-  product* p2 = new product("Laptop c", "Brand A", "Detail B", 17800000, 5);
-  product* p3 = new product("Gaming Laptop", "Brand A", "Detail B", 2500, 5);
+  Product::loadFromFile(".\\csv\\products.csv");
+  InvoiceDetail::loadFromFile(".\\csv\\detail.csv");
+  Invoice::loadFromFile(".\\csv\\invoice.csv");
+  Employee::loadFromFile(".\\csv\\employees.csv");
+  Customer::loadFromFile(".\\csv\\customers.csv");
+  // Product *pro = Product::prd[0];
+  // pro->displayAllPrdToManager();
+  // Employee *emp = dynamic_cast<Employee*>(Person::obj[0]);
+  // cout<<emp->calcRevenue(); //OK
+  // Employee *e = Employee::getMaxRevenue();
+  // e->printInfor(e);
+cout<<"cc";
+// Invoice::display();
+Product::saveToFile("products.csv");
+InvoiceDetail::saveToFile(".\\csv\\detail.csv");
+Invoice::saveToFile(".\\csv\\Invoice.csv");
+Employee::saveToFile(".\\csv\\employees.csv");
+Customer::saveToFile(".\\csv\\customers.csv");
 
-invoiceDetail::loadFromFile(".\\csv\\detail.csv");
-invoice::loadFromFile(".\\csv\\invoice.csv");
-// invoice::getInvoiceByID("IN00002")->setQuantityInvoice("DE00002", 12);
-invoice::getInvoiceByID("IN00001")->setQuantityInvoice("DE00001", 500);
-// invoice::getInvoiceByID("IN00001")->deleteInvoice();
-// cout<<invoice::getInvoiceByID("IN00001")->getTotalPrice();
-
-
-invoice::display();
-
-// // OK invoiceDetail::getDetailByID("DE00003")->setQuantity(10);
-// invoiceDetail::saveToFile(".\\csv\\detail.csv");
-// invoice::saveToFile(".\\csv\\invoice.csv");
 
 return 0;
 }
+//g++ mainTestPrd.cpp Product.cpp InvoiceDetail.cpp Invoice.cpp -o m
+//g++ mainTestPrd.cpp Product.cpp InvoiceDetail.cpp Invoice.cpp Employee.cpp Person.cpp Customer.cpp -o m

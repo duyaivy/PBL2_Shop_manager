@@ -1,25 +1,27 @@
-#include "person.h"
-#include <iostream>
+#include "./header/Person.h"
+#include "./header/Invoice.h"
 #include <fstream>
 #include <string>
 #include <sstream>
 #include <conio.h>
 #include <iomanip>
-#include "vector.h"
+#include <iostream>
+cvector<Person*> Person::obj;
+
 using namespace std;
 
 // ham dung constructor
-person::person(const string& _name, const string& _phone, const string& _email, const string& _pass, const string& _role) {
+Person::Person(const string& _name, const string& _phone, const string& _email, const string& _pass, const string& _role) {
     name = _name; phone = _phone;
     email = _email; pass = _pass;
     role = _role;
-    obj.push_back(this);
-
+    isDelete = 0;
+    // obj.push_back(this);
 }
 //  ham dung destructor
-void person::clearPerson() {
+void Person::clearPerson() {
 
-    for (person* p : obj) {
+    for (Person* p : obj) {
         delete p;  // Delete 
     }
     obj.clear();  // Clear the vector
@@ -28,37 +30,43 @@ void person::clearPerson() {
 }
 
 // name
-string person::getName() {
+string Person::getName() {
     return name;
 }
-// phải sửa lại các hàm setName, set.... để tái sử dụng lại khi làm giao diện. 
-// Những hàm này phải có tham số truyền vào là một string, trong hàm chỉ làm việc set từ string truyền vào thôi. 
-//ở đây thì chỉ là this->name = name truyền vào.tươgn tự sửa hết các hàm set
-void person::setName(const string& t_name) {
+
+void Person::setName(const string& t_name) {
     name = t_name;
 };
 
 // ID
-string person::getID() {
+int Person::addInvoice(string inv){
+    this->idInvoice.push_back(inv);
+    return 1;
+}
+cvector<string> Person::getInvoice(){
+    return this->idInvoice;
+}
+
+string Person::getID() {
     return ID;
 }
 // phone
-string person::getPhone() {
+string Person::getPhone() {
     return phone;
 }
-void person::setPhone(const string& t_phone) {
+void Person::setPhone(const string& t_phone) {
     phone = t_phone;
 };
 // email
-string person::getEmail() {
+string Person::getEmail() {
     return email;
 }
-void person::setEmail(const string& t_email) {
+void Person::setEmail(const string& t_email) {
     email = t_email;
 };
 // pass
 // ham hien thi dau * cho pass
-string person::hidenPass() {
+string Person::hidenPass() {
     string password = "";
     char ch;
   
@@ -77,33 +85,46 @@ string person::hidenPass() {
     cout << endl;
     return password;
 }
-string person::getPass() {
-    return pass;
-}
-string person::getRole() {
+string Person::getRole() {
     return role;
 }
+string Person::getPass() {
+    return pass;
+}
 
-void person::setPass(const string& _pass) {
+void Person::setPass(const string& _pass) {
     this->pass = _pass;
 }
 
 
 
 
-void person::printInfor(const person* a) {
+void Person::printInfor(const Person* a) {
     cout << left << setw(10) << "ID:" << setw(10) << a->ID << endl
         << left << setw(10) << "FullName:" << setw(20) << a->name << endl
         << left << setw(10) << "Email:" << setw(30) << a->email << endl
         << left << setw(10) << "Phone:" << setw(15) << a->phone << endl
         << "----------------------------------------" << endl;
 }
+void Person::printAllInvoice(const Person* Person){
+    for(string inv: Person->idInvoice){
+        Invoice *i = Invoice::getInvoiceByID(inv);
+        if(i!=nullptr){
+           i->getInfor(i);
+        }
+        // cout<<inv<<endl;
+    }
+   
 
-int person::login(string id, string pw, person* p) {
-    for (person* person : obj) {
-        if ((person->getID()) == id) {
-            if (person->getPass() == pw) {
-                *p = *person;
+}
+
+
+int Person::login(string phone, string pw, cvector<Person*> &obj, Person* &p) {
+    for (Person* Person : obj) {
+        if ((Person->getPhone()) == phone) {
+           
+            if (( pw == Person->Person::getPass()) ) {
+               p = Person;
                 return 1;
             }
             else return 0;
@@ -112,11 +133,18 @@ int person::login(string id, string pw, person* p) {
     return 0;
 }
 
-void person::printTableHeader() {
+void Person::printTableHeader() {
     cout << left << setw(10) << "ID"
-         << setw(20) << "Full Name"
-         << setw(30) << "Email"
-         << setw(15) << "Phone"
-         << endl;
+        << setw(20) << "Full Name"
+        << setw(30) << "Email"
+        << setw(15) << "Phone"
+        << endl;
     cout << "-----------------------------------------------------------------------" << endl;
 }
+int Person::getDelete(){
+    return this->isDelete;
+}
+void Person::setDelete(int del){
+    this->isDelete = del;
+}
+

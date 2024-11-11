@@ -1,21 +1,22 @@
-#include "Employee.h"
-#include "product.h"
-#include "person.h"
-#include "Customer.h"
-#include "vector.h"
+#include "./header/Employee.h"
+#include "./header/Product.h"
+#include "./header/Person.h"
+#include "./header/Customer.h"
 #include <string>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
-#include <regex>
+#include <ctime>
 
 
 
 
-Employee::Employee(const string& name, const string& phone, const string& email, const string& password, const string& role)
-    : person(name, phone, email, password,role) {
+
+Employee::Employee(const string& name, const string& phone, const string& email, const string& password, const string& role, const string &dayToWork)
+    : Person(name, phone, email, password,role) {
         this->ID= generateID();
+        this->dayToWork = dayToWork;
     }
 
 void Employee::display() {
@@ -23,6 +24,7 @@ void Employee::display() {
         << setw(20) << getName()
         << setw(30) << getEmail()
         << setw(20) << getPhone()
+        << setw(20) << getDayToWork()
         << endl;
 }
 string Employee::generateID() {
@@ -31,21 +33,33 @@ string Employee::generateID() {
         ss <<"EP"<< setw(5) << setfill('0') << nextEmpID++; 
         return ss.str();
     }
+string getTimeNow(){
+    time_t t =time(nullptr);
+    tm* now =localtime(&t);
+    int year = now->tm_year + 1900;  // tm_year tính từ năm 1900
+    int month = now->tm_mon + 1;     // tm_mon từ 0 đến 11
+    int day = now->tm_mday;
+
+    ostringstream oss;
+    oss <<setfill('0') <<setw(2) << day << "/"<<setw(2) << month << "/" << year;
+    string currentDate = oss.str();
+    return currentDate;
+}
 Employee* Employee::getEmpById(const string id){
-    for (person *p : obj){
-        if (p->getID() == id){   
-            
+    for (Person *p : Person::Person::obj){
+        if (p->getID() == id){  
                  Employee* emp = dynamic_cast< Employee*>(p);
                  return emp;
-            
-            
         }
     }
     return nullptr;
 }
-// tương tự hàm set của person. Ở đây không nên cho update role bởi vì khách hàng là kahcs hàng mà nhân viên là nhân viên.
-// mỗi role có những giá trị chứa khác nhau, đổi là sẽ lỗi. bài toán thực tế thì có nhưng nếu có thì họ sẽ tạo một tài khoàn nhân viên mới chứ không thay đổi thế này.
-
+  int Employee::setDayToWork(string day){
+        this->dayToWork = day;
+  }
+  string Employee::getDayToWork(){
+    return dayToWork;
+  }
 void Employee::updateInfo() {
   int choice;
     cout << "Choose update option:" << endl;
@@ -152,10 +166,15 @@ void Employee::saveToFile( const string& filename) {
         return;
     }
 
-    for ( person* p : obj) {
+    for ( Person* p : Person::obj) {
         Employee* emp = dynamic_cast< Employee*>(p); // Chỉ lưu thông tin nhân viên
         if (emp) {
-            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << ","<<emp->getPass() <<"," <<emp->getRole() << endl;
+            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << ","<<emp->getPass() <<"," <<emp->getRole()<<"," <<emp->getDayToWork();
+            // save invoice
+            for(string invoice: emp->idInvoice){
+             file<<","<<invoice;
+            }
+            file<<endl;
         }
     }
 
@@ -171,7 +190,7 @@ int Employee::loadFromFile(const string& filename) {
 
     string line;
     while (getline(file, line)) {
-        string id, name, phone, email,pass, role;
+        string id, name, phone, email,pass, role,day,invoice;
 
         stringstream ss(line);
         getline(ss, id, ',');
@@ -179,7 +198,10 @@ int Employee::loadFromFile(const string& filename) {
         getline(ss, phone, ',');
         getline(ss, email, ',');
         getline(ss, pass, ',');
-        getline(ss, role);
+        getline(ss, role, ',');
+        getline(ss, day, ',');
+        getline(ss, invoice, ',');
+       
 
         try {
             // Kiểm tra tính hợp lệ của tên (chỉ chứa chữ cái và khoảng trắng)
@@ -192,13 +214,14 @@ int Employee::loadFromFile(const string& filename) {
                 throw invalid_argument("Invalid phone number format.");
             }
 
-            // Kiểm tra tính hợp lệ của email
-            const regex emailPattern(R"((\w+)(\.\w+)*@(\w+\.)+\w+)");
-            if (!regex_match(email, emailPattern)) {
-                throw invalid_argument("Invalid email format.");
+        
+            Employee* newEmp = new Employee(name, phone, email,pass, role, day);
+            Person::obj.push_back(newEmp);
+            if(invoice!= "") newEmp->addInvoice(invoice);
+            // add het invoice cua person
+            while(getline(ss,invoice,',')){
+            newEmp->addInvoice(invoice);
             }
-           Employee* newEmp = new Employee(name, phone, email,pass, role);
-           obj.push_back(newEmp);
 
         } 
         catch (const invalid_argument&) {
@@ -243,7 +266,7 @@ void Employee::manageCustomers() {
         switch (option) {
         case 1:
             Customer::printTableHeader();
-            for (person* p : obj) {
+            for (Person* p : Person::obj) {
                 Customer* cust = dynamic_cast<Customer*>(p); // Chỉ hiển thị khách hàng
                 if (cust) {
                     cust->display();
@@ -261,7 +284,7 @@ void Employee::manageCustomers() {
             }
             bool found = false;
 
-            for (person* p : obj) {
+            for (Person* p : Person::obj) {
                 Customer* cust = dynamic_cast<Customer*>(p);  // Chỉ tìm kiếm trong đối tượng Customer
                 if (cust && cust->getID() == searchID) {
                     cust->display();
@@ -321,7 +344,7 @@ void Employee::manageCustomers() {
 
                 // Thêm khách hàng vào danh sách
                 Customer* newCustomer = new Customer(Nname, Nphone, Nemail, Npassword, Naddress);
-                obj.push_back(newCustomer);
+                Person::obj.push_back(newCustomer);
                 cout << "Customer " << Nname << " added successfully.\n";
                 Customer::saveToFile("customers.csv");
                 break;
@@ -353,7 +376,7 @@ void Employee::manageCustomers() {
                 cout << "Canceled deleting customer.\n";
                 break;
             }
-            if (Customer::getCusById(id)) {
+            if (Customer::getCusById(id)!= nullptr) {
                 Customer::getCusById(id)->deleteCustomer();
                 Customer::saveToFile("customers.csv");
             } else {
@@ -410,7 +433,7 @@ void Employee::manageEmployees() {
         switch (option) {
         case 1:
             Customer::printTableHeader();
-            for (person* p : obj) {
+            for (Person* p : Person::obj) {
                 Employee* emp = dynamic_cast<Employee*>(p); // Chỉ hiển thị nhân viên
                 if (emp) {
                     emp->display();
@@ -456,7 +479,7 @@ void Employee::manageEmployees() {
                 } while (Npassword != confirmPass); 
             // Tạo đối tượng Employee mới và thêm vào danh sách
            Employee* newEmployee = new Employee(Nname, Nphone, Nemail, Npassword, "SALES");
-           obj.push_back(newEmployee);
+           Person::obj.push_back(newEmployee);
 
 
             cout << "Employee " << Nname << " added successfully.\n";
@@ -525,17 +548,17 @@ void Employee::manageProduct() {
 
         switch (option) {
         case 1:
-            product::displayPrd();
+            Product::displayAllPrd();
             break;
         case 2:{
             string namee;
-            cout<<"Enter Name of product to search: ";
+            cout<<"Enter Name of Product to search: ";
             getline(cin, namee);
              if(namee=="0"){
                 break;
              }
-            if(!product::searchByName(namee)){
-                cout<<"Not Found product name "<<namee<<endl;
+            if(!Product::searchByName(namee)){
+                cout<<"Not Found Product name "<<namee<<endl;
             }
             break;
         }
@@ -543,27 +566,27 @@ void Employee::manageProduct() {
             string _name,_brand,_detail;
             long long _unitPrice;
             int _quantity;
-            cout<<"Enter name of product:"<<endl;
+            cout<<"Enter name of Product:"<<endl;
              getline(cin, _name);
              if(_name=="0"){
                 break;
              }
-            cout<<"Enter brand of product:"<<endl;
+            cout<<"Enter brand of Product:"<<endl;
              getline(cin, _brand);
              if(_brand=="0"){
                 break;
              }
-            cout<<"Enter detail of product:"<<endl;
+            cout<<"Enter detail of Product:"<<endl;
              getline(cin, _detail);
              if(_detail=="0"){
                 break;
              }
-            cout<<"Enter unitPrice of product:"<<endl;
+            cout<<"Enter unitPrice of Product:"<<endl;
              cin>>_unitPrice;
-            cout<<"Enter quantity of product:"<<endl;
+            cout<<"Enter quantity of Product:"<<endl;
              cin>>_quantity;
 
-            new product(_name, _brand, _detail,_unitPrice,_quantity);
+            new Product(_name, _brand, _detail,_unitPrice,_quantity);
             cout << "Product " << _name << " added successfully.\n";
         }
             break;
@@ -571,8 +594,8 @@ void Employee::manageProduct() {
             string _id;
             cout<<"Enter id of Product to delete: ";
             getline(cin, _id);
-           if(product::getPrdByID(_id)){
-            product::getPrdByID(_id)->deletePrd(); 
+           if(Product::getPrdByID(_id)){
+            Product::getPrdByID(_id)->deletePrd(); 
             cout<<"Delete Product successfully!"<<endl;
            }else{
             cout<<"Not Found Product has id"<<_id<<endl;
@@ -583,8 +606,8 @@ void Employee::manageProduct() {
             string _id;
             cout<<"Enter id of Product to edit: ";
             getline(cin, _id);
-           if(product::getPrdByID(_id)){
-            product::setInfor(*product::getPrdByID(_id)); 
+           if(Product::getPrdByID(_id)){
+            Product::setInfor(*Product::getPrdByID(_id)); 
             cout<<"Edit Product successfully!"<<endl;
            }else{
             cout<<"Not Found Product has id"<<_id<<endl;
@@ -625,10 +648,10 @@ void Employee::handleManagerMenu(Employee& manager) {
         case 4:
             cout << "Exiting...\n";
             // Giải phóng bộ nhớ trước khi thoát
-            for (person* p : obj) {
+            for (Person* p : Person::obj) {
                 delete p;
             }
-            obj.clear();
+            Person::obj.clear();
 
             return;  // Thoát khỏi hàm
         default:
@@ -651,12 +674,12 @@ void Employee::handleEmployeeMenu(Employee& sale){
         cin.ignore();
         switch(choice){
         case 1:
-            if (obj.empty()) {
+            if (Person::obj.empty()) {
                     cout << "No customers found.\n";  
                 } else {
                     cout << "\n--- Customer List ---\n";
-                    person::printTableHeader();
-                    for (person* p : obj) {
+                    Person::printTableHeader();
+                    for (Person* p : Person::obj) {
                         Customer* cust = dynamic_cast<Customer*>(p); // Chỉ hiển thị khách hàng
                         if (cust) {
                             cust->display();
@@ -665,19 +688,19 @@ void Employee::handleEmployeeMenu(Employee& sale){
                 }
                 break;
         case 2: 
-            if(prd.empty()){
-                cout <<"No product found.\n";
+            if(Product::prd.empty()){
+                cout <<"No Product found.\n";
             }
             cout << "\n--- Product List ---\n";
-            product::displayPrd();
+            Product::displayAllPrd();
             break;
         case 3:
             cout << "Exiting...\n";
             // Giải phóng bộ nhớ trước khi thoát
-            for (person* p : obj) {
+            for (Person* p : Person::obj) {
                 delete p;
             }
-            obj.clear();
+            Person::obj.clear();
 
             return;  // Thoát khỏi hàm
         default:
@@ -691,8 +714,8 @@ void Employee::handleEmployeeMenu(Employee& sale){
 
 void Employee::displayCustomers() {
     cout << "\n--- Customer List ---\n";
-    person::printTableHeader();  
-    for (person* p : obj) {
+    Person::printTableHeader();  
+    for (Person* p : Person::obj) {
         Customer* cust = dynamic_cast<Customer*>(p);  // Chỉ hiển thị nếu là Customer
         if (cust) {
             cust->display();  // Hiển thị thông tin khách hàng
@@ -710,7 +733,7 @@ int Employee::searchEmployeeByID(){
     }
     bool found = false;
 
-    for (person* p : obj) {
+    for (Person* p : Person::obj) {
         Employee* cust = dynamic_cast<Employee*>(p);
         if (cust && cust->getID() == searchID) {
             cust->display();
@@ -738,11 +761,95 @@ void Employee::setInfor(){
 }
 
 int Employee::deleteEmployee(){
-     auto it = find(obj.begin(), obj.end(), this);
-    if (it != obj.end()) {
-        obj.erase(it);
+     auto it = find(Person::obj.begin(), Person::obj.end(), this);
+    if (it != Person::obj.end()) {
+        Person::obj.erase(it);
         delete this;
     }
     return 1;
 }
+long long Employee::calcRevenue(){
+    long long total = 0;
+    for(string inv : this->idInvoice){
+        if(Invoice::getInvoiceByID(inv) != nullptr){
+            total += Invoice::getInvoiceByID(inv)->getTotalPrice();
+        } else{
+            total += 0;
+        }
+    }
+return total;
+}
+
+Employee* Employee::getMaxRevenue(){
+    Employee *maxEmp = nullptr;
+    long long max = 0;
+    for(Person *p : Person::obj){
+        Employee *emp = dynamic_cast<Employee*>(p);
+        if(emp){
+            if(!max) { 
+                max = emp->calcRevenue();
+                maxEmp = emp;
+            }
+            if(max < emp->calcRevenue()) {
+                max = emp->calcRevenue();
+                maxEmp = emp;
+
+            }
+        }
+    }
+return maxEmp;
+}
+int Employee::regisEmployee(){
+    if(this->getRole()== "MANAGER"){
+        string t_name, t_phone, t_email, t_address;
+        string dateToWork = getTimeNow();
+        cout << "Enter the full name: ";
+        getline(cin, t_name);
+        
+        cout << "Enter the phone number: ";
+        getline(cin, t_phone);
+    
+        cout << "Enter the email: ";
+        getline(cin, t_email);
+
+        string password, confirmPass;  
+        cout << "Enter your password:\t";
+        password = Person::hidenPass();
+        while (1) {
+            cout << "Confirm your password: ";
+                confirmPass = hidenPass();
+                if (password == confirmPass) {
+                        break;
+                } else {
+                    continue;
+                }
+                        
+        }
+        //Customer( const string& _password, const string& _address)
+        Employee *e = new Employee(t_name, t_phone, t_email, password, "SALES", dayToWork);
+        Person::obj.push_back(e);
+        cout<<"Register Employee Sucessfully!\nHere is your infor to Login\n";
+        cout << left << setw(15) << "Phone:" << setw(10) << e->getPhone() << endl
+            << left << setw(10) << "Password:" << setw(20) << e->getPass() << endl;
+        system("pause");
+        return 1;   
+    }
+    return 0;
+}
+int Employee::deleteEmployee(string empID){
+    if(this->getRole()== "MANAGER"){
+        if(Employee::getEmpById(empID)!= nullptr){
+            Employee::getEmpById(empID)->setDelete(1);
+            return 1;
+        }else return 0;
+    }
+    return 0;
+}
+int Employee::deleteCustomer(string cusID){
+    if(Customer::getCusById(cusID)!= nullptr){
+        Customer::getCusById(cusID)->setDelete(1);
+        return 1;
+    }else return 0;
+}
+
 

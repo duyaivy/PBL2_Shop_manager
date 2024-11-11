@@ -1,9 +1,10 @@
-#include "invoiceDetail.h"
-#include "product.h"
+#include "./header/InvoiceDetail.h"
+#include "./header/Product.h"
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
+cvector<InvoiceDetail*> InvoiceDetail::detail;
 
 static string formatCurrency(long long number) {
     stringstream ss;
@@ -23,25 +24,27 @@ static string formatCurrency(long long number) {
     result += "VND";    
     return result;
 }
-invoiceDetail::invoiceDetail(const string invoiceID, const int quantity,const string prdID){
+InvoiceDetail::InvoiceDetail(const string invoiceID, const int quantity,const string prdID){
         this->detailID = generateDetailID();
         this->invoiceID = invoiceID; 
         this->quantity = quantity;
         this->prdID = prdID;
         long long money = 0;
-        if(product::getPrdByID(prdID)){
-        money = product::getPrdByID(prdID)->getUnitPrice();
+        
+        if(Product::getPrdByID(prdID)!= nullptr){
+        money = Product::getPrdByID(prdID)->getUnitPrice();
+        }else{
+           money = 0;
         }
         this->price = quantity*money;
-        detail.push_back(this);
     }
 
-string invoiceDetail::generateDetailID(){
+string InvoiceDetail::generateDetailID(){
         stringstream ss;
         ss <<"DE"<< setw(5) << setfill('0') << nextDetailID++; 
         return ss.str();
     }
-void invoiceDetail:: getInfor(const invoiceDetail *detail){
+void InvoiceDetail:: getInfor(const InvoiceDetail *detail){
      cout << left << setw(15) << "Detail ID:" << setw(15) << detail->detailID << endl
         << left << setw(15) << "Invoice ID:" << setw(15) << detail->invoiceID << endl
         << left << setw(15) << "Product ID" << setw(15) << detail->prdID << endl
@@ -49,43 +52,43 @@ void invoiceDetail:: getInfor(const invoiceDetail *detail){
         << left << setw(15) << "Price:" << formatCurrency(detail->price)  <<endl
         << "----------------------------------------" << endl;
     }
-void invoiceDetail:: setQuantity(int number){
+void InvoiceDetail:: setQuantity(int number){
     quantity = number;
-    price = quantity* product::getPrdByID(prdID)->getUnitPrice();// sua lai tong gia tien 
+    price = quantity* Product::getPrdByID(prdID)->getUnitPrice();// sua lai tong gia tien 
 }
-invoiceDetail* invoiceDetail:: getDetailByID(string id ){
-    for (invoiceDetail *dt : detail){
+InvoiceDetail* InvoiceDetail:: getDetailByID(string id){
+    for (InvoiceDetail *dt : InvoiceDetail::detail){
         if (dt->getDetailID() == id){   
             return dt;
         }
     }
 return nullptr; 
 }
-void invoiceDetail:: deleteDetail(){
+void InvoiceDetail:: deleteDetail(){
  auto it = find(detail.begin(), detail.end(), this);
     if (it != detail.end()) {
         detail.erase(it);
         delete this;// giai phong bo nho cho this
     }
 }
-void invoiceDetail:: displayDetail(){
-    for(invoiceDetail *dt: detail){
-        invoiceDetail::getInfor(dt);
+void InvoiceDetail:: displayDetail(){
+    for(InvoiceDetail *dt: InvoiceDetail::detail){
+        InvoiceDetail::getInfor(dt);
     }
 }
-int invoiceDetail:: saveToFile(string fileName){
+int InvoiceDetail:: saveToFile(string fileName){
      ofstream file(fileName);
         if (!file) {
             cerr << "Error opening file for writing.\n";
             return 0;
         }
-        for (invoiceDetail *dt : detail) {
+        for (InvoiceDetail *dt : InvoiceDetail::detail) {
             file << dt->detailID << "," << dt->invoiceID << ","<< dt->prdID<<"," << dt->quantity << "," << dt->price<< endl;
         }
         file.close();
         return 1;
 }
-int invoiceDetail:: loadFromFile(string fileName){
+int InvoiceDetail:: loadFromFile(string fileName){
     ifstream file(fileName);
         if (!file) {
             cerr << "Error opening file for reading.\n";
@@ -107,7 +110,8 @@ int invoiceDetail:: loadFromFile(string fileName){
             if (quantityValue < 0) {
                 return 0; 
             }
-            new invoiceDetail(invoiceId,quantityValue,prdId);
+            InvoiceDetail *dt = new InvoiceDetail(invoiceId, quantityValue, prdId);
+            detail.push_back(dt);
         }    catch (const std::invalid_argument& e) {
              return 0; // Trả về 0 nếu gặp lỗi khi chuyển đổi
             }catch (const std::out_of_range& e) {
@@ -119,18 +123,18 @@ int invoiceDetail:: loadFromFile(string fileName){
 return 1;
 }
 //get
-string invoiceDetail::getDetailID(){
+string InvoiceDetail::getDetailID(){
     return detailID;
 }
-string invoiceDetail::getInvoiceID(){
+string InvoiceDetail::getInvoiceID(){
     return invoiceID;
 }
-string invoiceDetail::getPrdID(){
+string InvoiceDetail::getPrdID(){
     return prdID;
 }
-int invoiceDetail::getQuantity(){
+int InvoiceDetail::getQuantity(){
     return quantity;
 }
-long long invoiceDetail::getPrice(){
+long long InvoiceDetail::getPrice(){
     return price;
 }

@@ -1,17 +1,18 @@
-#include "Customer.h"
-#include "person.h"
+
+#include "./header/Customer.h"
+#include <iostream>
 #include <fstream>
 #include <string>
 #include <sstream>
-#include <iostream>
-#include <vector>
-#include <regex>  // Thêm thư viện regex để kiểm tra email
+#include "./header/vector.h"
+#include <algorithm>
 #include <iomanip>
+#include "./header/InvoiceDetail.h"
 using namespace std;
 static int nextCusID = 1;
 
-Customer::Customer( const string& _name, const string& _phone, const string& _email, const string& _password, const string& _address)
-    : person(_name, _phone, _email, _password, "CUSTOMER"),  address(_address) {
+Customer::Customer(const string& _name, const string& _phone, const string& _email, const string& _password, const string& _address)
+    : Person(_name, _phone, _email, _password, "CUSTOMER"),  address(_address) {
         this->ID= generateID();
     };
 
@@ -119,8 +120,7 @@ string Customer::getAddress() {
 }
 
 Customer* Customer::getCusById(const string& cusID) {
-    for (person *p : obj) {
-     
+    for (Person *p : Person::obj) {
         if (p->getID() == cusID) {
             Customer* cus = dynamic_cast<Customer*>(p);
             return cus; // Trả về con trỏ đến đối tượng Customer nếu tìm thấy
@@ -137,24 +137,31 @@ string Customer::generateID() {
 
 
 void Customer::saveToFile(const string& fileName)  {
-    ofstream file(fileName, ios::trunc); // Mở file
-    if (!file) { // Kiểm tra xem file có mở 1thành công không
+    ofstream file(fileName, ios::trunc);
+    if (!file) { 
         cerr << "Can not open file !\n";
         return;
     }
-    // hàm này thiếu những trường khác của cus so với person. nên override lại từ person.h
-   for (person* p : obj) {
-    // Chuyển đổi đối tượng thành Customer* nếu có thể
+   
+   for (Person* p : Person::obj) {
     Customer* customer = dynamic_cast<Customer*>(p);
     if (customer) {
-        // Nếu chuyển đổi thành công, nghĩa là person là đối tượng Customer
+        // Nếu chuyển đổi thành công, nghĩa là Person là đối tượng Customer
         file << customer->getID() << ", "
              << customer->getName() << ", "
              << customer->getPhone() << ", "
              << customer->getEmail() << ", "
              << customer->getPass() << ", "
-             << customer->getAddress() << ", "<<endl;
-    }
+             << customer->getAddress();
+
+             for(string invoice: customer->idInvoice){
+             file<<","<<invoice;
+            }
+            for(string cart: customer->idCart){
+             file<<","<<cart;
+            }
+            file<<endl;
+        }
     }
 file.close();
 }
@@ -168,33 +175,37 @@ int Customer::loadFromFile(const string& fileName) {
     string line;
     while (getline(file, line)) {
         stringstream ss(line);
-        string _customerID, _address, _name, _phone, _email, _password;
+        string _customerID, _name, _phone, _email, _password, _address, _id;
 
         getline(ss, _customerID, ',');
         getline(ss, _name, ',');
         getline(ss, _phone, ',');
         getline(ss, _email, ',');
         getline(ss, _password,',');
-        getline(ss, _address);
+        getline(ss, _address,',');
+        getline(ss, _id,',');
+
 
         try {
-            // Kiểm tra tính hợp lệ của tên (chỉ chứa chữ cái và khoảng trắng)
-            if (!all_of(_name.begin(), _name.end(), [](char c) { return isalpha(c) || isspace(c); })) {
-                return 0; 
-            }
-
-            // Kiểm tra tính hợp lệ của số điện thoại (chỉ chứa số)
-            if (!all_of(_phone.begin(), _phone.end(), ::isdigit)) {
-                return 0; 
-            }
-
-            // Kiểm tra tính hợp lệ của email
-            const regex emailPattern(R"((\w+)(\.\w+)*@(\w+\.)+\w+)");
-            if (!regex_match(_email, emailPattern)) {
-                return 0; 
-            }
-
             Customer* newCustomer = new Customer( _name, _phone, _email, _password, _address);
+            Person::obj.push_back(newCustomer);
+            if(_id!= "") {
+                if(_id.find("DE") != string::npos){
+                 newCustomer->addCaft(_id);    
+                }else{
+                    newCustomer->addInvoice(_id);
+                }
+            
+            }
+            // add het _id cua person
+            while(getline(ss,_id,',')){
+                if(_id.find("DE") != string::npos){
+                 newCustomer->addCaft(_id);    
+                }else{
+                    newCustomer->addInvoice(_id);
+                }
+            }
+
         } 
         catch (const out_of_range&) {
             return 0; // Trả về 0 nếu gặp lỗi ngoài phạm vi
@@ -236,9 +247,9 @@ void Customer::setInfor() {
     setAddress(t_address); 
 }
 int Customer::deleteCustomer(){
-     auto it = find(obj.begin(), obj.end(), this);
-    if (it != obj.end()) {
-        obj.erase(it);
+    auto it = find(Person::obj.begin(), Person::obj.end(), this);
+    if (it != Person::obj.end()) {
+        Person::obj.erase(it);
         delete this;// giai phong bo nho cho this
     }
     return 1;
@@ -253,4 +264,65 @@ void Customer::printTableHeader() {
     cout << "-------------------------------------------------------------------------------" << endl;
 }
 
+int Customer:: regis(){
+    string t_name, t_phone, t_email, t_address;
+    cout << "Enter the full name: ";
+    getline(cin, t_name);
+    
+    cout << "Enter the phone number: ";
+    getline(cin, t_phone);
+   
+    cout << "Enter the email: ";
+    getline(cin, t_email);
+   
+    cout << "Enter the address: ";
+    getline(cin, t_address);
+    
+    string password, confirmPass;  
+                
+               
+    cout << "Enter your password:\t";
+    password = Person::hidenPass();
+    while (1) {
+        cout << "Confirm your password: ";
+            confirmPass = hidenPass();
+            if (password == confirmPass) {
+                    break;
+            } else {
+                continue;
+            }
+                    
+    }
+    //Customer( const string& _password, const string& _address)
+    Customer *c = new Customer(t_name, t_phone, t_email, password, t_address);
+    Person::obj.push_back(c);
+    cout<<"Register Sucessfully!\nHere is your infor to Login\n";
+    cout << left << setw(15) << "Phone:" << setw(10) << c->getPhone() << endl
+        << left << setw(10) << "Password:" << setw(20) << c->getPass() << endl;
+     system("pause");
+    return 1;
+    
+}
 
+int Customer::addCaft(string cart){
+    this->idCart.push_back(cart);
+    return 1;
+}
+int Customer::getInforCart(){
+    for(string cart: this->idCart){
+        InvoiceDetail *dt = InvoiceDetail::getDetailByID(cart);
+        if(dt!= nullptr){
+            dt->getInfor(dt);
+        }
+    }
+    return 1;
+}
+int Customer::getInforInvoice(){
+    for(string invoice: this->idInvoice){
+        Invoice *inv = Invoice::getInvoiceByID(invoice);
+        if(inv!= nullptr){
+            inv->getInfor(inv);
+        }
+    }
+    return 1;
+}
