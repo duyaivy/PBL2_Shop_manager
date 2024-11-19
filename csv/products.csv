@@ -1,8 +1,10 @@
-PD00001,Phu kien dien thoai ngon bo re,Brand A,Detail A,1000,800,10,2
-PD00002,Laptop c,Brand A,Detail B,1500,900,5,0
-PD00003,Gaming Laptop,Brand A,Detail B,1500,900,5,1
-PD00004,laptop gaming, dell,deoco,2323,1900,589,5
-PD00005,laptop van phong, dell,deoco,150000,128000,72,2
-PD00006,Laptop A,Brand A,Detail A,1000,850,10,5
-PD00007,Laptop c,Brand A,Detail B,17800000,15000000,8005,123,78
-PD00008,Gaming Laptop,Brand A,Detail B,2500,2000,600,234
+PD00001,Phu kien dien thoai ngon bo re,Brand A,Detail A,1000,800,10,2,1
+PD00002,Laptop c,Brand A,Detail B,1500,900,5,0,0
+PD00003,Gaming Laptop,Brand A,Detail B,1500,900,5,1,0
+PD00004,laptop gaming, dell,deoco,2323,1900,589,5,0
+PD00005,Dell imprison,Dell,none,10000000,8000000,50,12,0
+PD00006,Laptop A,Brand A,Detail A,1000,850,10,5,0
+PD00007,Laptop c,Brand A,Detail B,17800000,15000000,8005,123,0
+PD00008,Gaming Laptop,Brand A,Detail B,2500,2000,600,234,0
+PD00009,Asus pro 12,Asus,ram 8gb,15000000,12000000,100,20,0
+PD00010,Vivo book ,Vivo,none,12000000,10000000,100,0,0

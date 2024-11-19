@@ -8,7 +8,7 @@ protected:
     string generateID() override;
     static int nextEmpID;
 public:
-    Employee(const string& name, const string& phone, const string& email, const string& password, const string& role = "SALES", const string &dayToWork= "");
+    Employee(const string& name, const string& phone, const string& email, const string& password, const string& role = "SALES",const bool & _isDelete = false, const string &dayToWork="");
     void display() override;
     void updateInfo();
     int deleteEmployee();
@@ -26,10 +26,18 @@ public:
     static void displayCustomers(); 
     void setInfor() override;
     static Employee*getEmpById(const string id);
-    int searchEmployeeByID();
+    static int searchEmployeeByID();
+    static int searchEmployeeByName();
     int regisEmployee();
     int deleteEmployee(string empID);
     int deleteCustomer(string cusID);
+    static void printTableHeader();
+    static void handleOneCus();
+    static void handleOneEmp();
+    static void handleOnePrd();
+    void handleThisEmployee();
+    void viewAllInfor();
+
 };
 #endif
 

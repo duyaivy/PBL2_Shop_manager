@@ -2,8 +2,10 @@
 #include "./header/Product.h"
 #include "./header/Person.h"
 #include "./header/Customer.h"
+#include"./header/InvoiceDetail.h"
+#include"./header/Invoice.h"
 #include <iostream>
-#include <string>
+
 using namespace std;
 int setUpDataBase();
 int run();
@@ -11,11 +13,12 @@ int saveDataBase();
 int Product::nextPrdID = 1; 
 int Employee::nextEmpID = 1;
 int Customer::nextCusID = 1;
+int InvoiceDetail::nextDetailID = 1;
+int Invoice::nextInvoiceID = 1;
 
 int main() {
     run();
-    // Nạp dữ liệu từ các file CSV
-   
+    
     
        
 
@@ -77,6 +80,7 @@ int main() {
 
 int run(){
 // g++ Qli.cpp Person.cpp Employee.cpp Customer.cpp product.cpp -o z
+//      g++ main.cpp Product.cpp InvoiceDetail.cpp Invoice.cpp Employee.cpp Person.cpp Customer.cpp global.cpp -o m
 
     setUpDataBase();
     int choose;
@@ -87,11 +91,10 @@ int run(){
         cout << "\n1. Login";
         cout << "\n2. Sign up";
         cout << "\n0. Exit program";
-        for (Person *p : Person::obj){
-        // Employee* em = dynamic_cast< Employee*>(p);
-        // em->display();
-        cout<<p->getID()<<endl;
-         }
+        cout << "\nSelect: ";
+        // for (Person *p : Person::obj){
+        // cout<<p->getID()<<endl;
+        //  }
         cin >> choose;
         cin.ignore();
         switch (choose)
@@ -119,11 +122,25 @@ int run(){
 
                 if(Person::login(phone, password,Person::obj, curP)){
                     cout<<"\nLogin Successfully!\n";
-                    cout<<curP->getEmail();
+                    cout<<curP->getDelete();
                     {
-                        // xu li trong nay
+                        // xu li sua dang nhap
+                        if(curP->getRole() == "CUSTOMER"){
+                            Customer *curCus = dynamic_cast<Customer*>(curP);
+                            // chua xu li
+                        }else{
+                            Employee *curEmp = dynamic_cast<Employee*>(curP);
+                            if (curP->getRole() == "MANAGER") {
+                                Employee::handleManagerMenu(*curEmp);
+                            } else if (curEmp->getRole() == "SALES") {
+                                Employee::handleEmployeeMenu(*curEmp);
+                            }
+                        }
+                        break;
                     }
 
+                    // out khoi dang nhap
+                    break;
                 }
                 else{
                 cout<<"Invalid Phone or Password. Please try again or enter '0' to return\n";
@@ -154,25 +171,32 @@ int run(){
     return 0;
 }
 int setUpDataBase(){
-    if (!Employee::loadFromFile("employees.csv") ) {
-        cerr << "Failed to load employee data.\n";
-        return 0;
-    }
-
-    if (!Customer::loadFromFile("customers.csv") ) {
-        cerr << "Failed to load customer data.\n";
-        return 0;
-    }
-\
-    if (!Product::loadFromFile("products.csv") ) {
+    if (!Product::loadFromFile(".\\csv\\products.csv") ) {
         cerr << "Failed to load product data.\n";
         return 0;
     }
-
+    if (!InvoiceDetail::loadFromFile(".\\csv\\detail.csv")) {
+        cerr << "Failed to load invoice detail data.\n";
+        return 0;
+    }
+    if (!Invoice::loadFromFile(".\\csv\\invoice.csv")) {
+        cerr << "Failed to load invoice data.\n";
+        return 0;
+    }
+    if (!Employee::loadFromFile(".\\csv\\employees.csv") ) {
+        cerr << "Failed to load employee data.\n";
+        return 0;
+    }
+    if (!Customer::loadFromFile(".\\csv\\customers.csv") ) {
+        cerr << "Failed to load customer data.\n";
+        return 0;
+    }
     return 1;
 }
 int saveDataBase(){
-    Employee::saveToFile("employees.csv");
-    Customer::saveToFile("customers.csv");
-    Product::saveToFile("products.csv");
+    Product::saveToFile(".\\csv\\products.csv");
+    InvoiceDetail::saveToFile(".\\csv\\detail.csv");
+    Invoice::saveToFile(".\\csv\\Invoice.csv");
+    Employee::saveToFile(".\\csv\\employees.csv");
+    Customer::saveToFile(".\\csv\\customers.csv");
 }

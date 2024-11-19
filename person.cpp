@@ -11,11 +11,11 @@ cvector<Person*> Person::obj;
 using namespace std;
 
 // ham dung constructor
-Person::Person(const string& _name, const string& _phone, const string& _email, const string& _pass, const string& _role) {
+Person::Person(const string& _name, const string& _phone, const string& _email, const string& _pass, const string& _role,const bool & _isDelete) {
     name = _name; phone = _phone;
     email = _email; pass = _pass;
     role = _role;
-    isDelete = 0;
+    isDelete = _isDelete;
     // obj.push_back(this);
 }
 //  ham dung destructor
@@ -121,7 +121,9 @@ void Person::printAllInvoice(const Person* Person){
 
 int Person::login(string phone, string pw, cvector<Person*> &obj, Person* &p) {
     for (Person* Person : obj) {
-        if ((Person->getPhone()) == phone) {
+        if (Person->getDelete()) continue;
+        
+        if (((Person->getPhone()) == phone) ) {
            
             if (( pw == Person->Person::getPass()) ) {
                p = Person;
@@ -147,4 +149,15 @@ int Person::getDelete(){
 void Person::setDelete(int del){
     this->isDelete = del;
 }
+
+int Person::getInforInvoice(){
+    for(string invoice: this->idInvoice){
+        Invoice *inv = Invoice::getInvoiceByID(invoice);
+        if(inv!= nullptr){
+            inv->getInfor(inv);
+        }
+    }
+    return 1;
+}
+
 

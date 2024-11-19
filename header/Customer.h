@@ -11,7 +11,7 @@ protected:
     cvector<string> idCart;
     static int nextCusID;
 public:
-    Customer(const string& _name, const string& _phone, const string& _email, const string& _password,const string& _address);
+    Customer(const string& _name, const string& _phone, const string& _email, const string& _password,const bool & _isDelete,const string& _address);
     void updateInfo();
     string getAddress(); 
     void setAddress(const string&);
@@ -24,10 +24,12 @@ public:
     int deleteCustomer();
     static void printTableHeader() ; 
     int static regis();
-
+    void viewAllInfor();
+    int handleThisCustomer();
     int addCaft(string cart);
     int getInforCart();
-    int getInforInvoice();
+    static int searchCustomerById();
+    static int searchCustomerByName();
 };
 
 #endif

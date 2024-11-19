@@ -12,22 +12,23 @@ class Product
 protected:
 string productID, prdName,prdBrand,prdDetail;
 long long unitPrice,importPrice;
-int quantity, qntSell, isDelete;
+int quantity, qntSell;
+bool isDelete;
 static int nextPrdID;
 
 string generatePrdID(); 
 
 public:
-    Product(const string name ="unknown",const string brand ="unknown",const string detail="unknown",const long long unitPrice = 0,const long long importPrice = 0, const int quantity= 0, const int qntSell= 0);
+    Product(const string name ="unknown",const string brand ="unknown",const string detail="unknown",const long long unitPrice = 0,const long long importPrice = 0, const int quantity= 0, const int qntSell= 0, const bool isDelete= false);
     static void getInfor(const Product *p);
     static void getInforToManager(const Product *p);
     void printInfor();
-    static void setInfor(Product&p); 
+    static void setInfor(Product *p); 
     void setQuantity( const int count);
     int searchByID(string id); 
     int static searchByBrand(string brand); 
     int static searchByName(string name);
-    int deletePrd();
+    bool deletePrd();
     static void displayAllPrd(); 
     static void displayAllPrdToManager(); 
     void setUnitPrice(const long long price);
@@ -42,10 +43,11 @@ public:
     int getQuantity();
     void setImportPrice(long long price);
     void setQuantitySell(int qnt);
-    void setDelete(int del);
+    void setDelete(bool del);
     long long getImportPrice();
     int getQuantitySell();
-    int getDelete();
+    bool getDelete();
+    void handleThisProduct();
 
     static cvector<Product*> prd;
 

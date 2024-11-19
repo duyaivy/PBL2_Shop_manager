@@ -1,4 +1,5 @@
 #include "./header/Product.h"
+#include"./header/global.h"
 #include <iomanip>
 #include <algorithm>
 #include <fstream>
@@ -12,30 +13,30 @@ string Product::generatePrdID() {
         return ss.str();
     }
 // format VND cho price
-static string formatCurrency(long long number) {
-    stringstream ss;
-    string result;
-    ss << number; 
-    string strNumber = ss.str();
-    int len = strNumber.length();
-    int count = 0;
-    for (int i = len - 1; i >= 0; --i) {
-        result.insert(0, 1, strNumber[i]);
-        count++;
-        if (count == 3 && i != 0) {
-            result.insert(0, 1, '.'); 
-            count = 0;
-        }
-    }
-    result += "VND";    
-    return result;
-}
+// static string formatCurrency(long long number) {
+//     stringstream ss;
+//     string result;
+//     ss << number; 
+//     string strNumber = ss.str();
+//     int len = strNumber.length();
+//     int count = 0;
+//     for (int i = len - 1; i >= 0; --i) {
+//         result.insert(0, 1, strNumber[i]);
+//         count++;
+//         if (count == 3 && i != 0) {
+//             result.insert(0, 1, '.'); 
+//             count = 0;
+//         }
+//     }
+//     result += "VND";    
+//     return result;
+// }
 // chuyen prdID string -> int
 int convertStringToInt(const string& str) {
     string numberPart = str.substr(2);
     return stoi(numberPart);
 }
-Product::Product(const string name ,const string brand ,const string detail,const long long unitPrice,const long long importPrice , const int quantity,const int qntSell){
+Product::Product(const string name ,const string brand ,const string detail,const long long unitPrice,const long long importPrice , const int quantity,const int qntSell, const bool isDelete){
     productID = generatePrdID();
     prdBrand = brand; prdName = name;
     prdDetail = detail;
@@ -43,10 +44,11 @@ Product::Product(const string name ,const string brand ,const string detail,cons
     this->qntSell = qntSell;
     this->unitPrice = unitPrice;
     this->importPrice = importPrice;
-    this->isDelete = 0;    
+    this->isDelete = isDelete;    
 }
 void Product::getInfor(const Product *p){
         // cout << left << setw(15) << "ID:" << setw(15) << p->productID << endl;
+        if(p->isDelete) return;
         cout<< left << setw(18) << "Name:" << setw(20) << p->prdName << endl
              << left << setw(18) << "Brand:" << setw(30) << p->prdBrand << endl
              << left << setw(18) << "Detail:" << setw(50) << p->prdDetail << endl
@@ -56,6 +58,7 @@ void Product::getInfor(const Product *p){
 }
 
 void Product::getInforToManager(const Product *p){
+        if(p->isDelete) return;
         cout << left << setw(18) << "ID:" << setw(18) << p->productID << endl
              << left << setw(18) << "Name:" << setw(20) << p->prdName << endl
              << left << setw(18) << "Brand:" << setw(30) << p->prdBrand << endl
@@ -66,17 +69,21 @@ void Product::getInforToManager(const Product *p){
              << left << setw(18) << "Quantity remain:" << setw(20) << (p->quantity) - (p->qntSell) << endl
              << "----------------------------------------" << endl;
 }
-void Product::setInfor(Product &p){
+void Product::setInfor(Product *p){
     cout<<"Enter Name Product:";
-    getline(cin,p.prdName);
+    getline(cin,p->prdName);
     cout<<"Enter Brand:";
-    getline(cin,p.prdBrand);
+    getline(cin,p->prdBrand);
     cout<<"Enter Details:";
-    getline(cin,p.prdDetail);
-    cout<<"Enter Price:";
-    cin>>p.unitPrice;
+    getline(cin,p->prdDetail);
+    cout<<"Enter unitPrice:";
+    cin>>p->unitPrice;
+    cout<<"Enter InportPrice:";
+    cin>>p->importPrice;
+    cout<<"Enter quantity sold:";
+    cin>>p->qntSell;
     cout<<"Enter Quantity:";
-    cin>>p.quantity;
+    cin>>p->quantity;
     }
 void Product::setQuantity( const int count){
     this->quantity = count;
@@ -117,12 +124,13 @@ int Product::searchByID(string ID){
 }
 
 
-int Product::deletePrd(){
-    auto it = find(prd.begin(), prd.end(), this);
-    if (it != prd.end()) {
-        prd.erase(it);
-        delete this;// giai phong bo nho cho this
-    }
+bool Product::deletePrd(){
+    // auto it = find(prd.begin(), prd.end(), this);
+    // if (it != prd.end()) {
+    //     prd.erase(it);
+    //     delete this;// giai phong bo nho cho this
+    // }
+    this->isDelete = 1;
     return 1;
 }
 
@@ -141,11 +149,7 @@ void Product:: displayAllPrdToManager(){
 
 
 // Hàm chuyển chuỗi về chữ thường
-string toLowerCase(const string& str) {
-    string lowerStr = str;
-    transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
-    return lowerStr;
-}
+
 // hàm tìm kiếm bằng từ khoá nếu tên là "nguyen van a" nếu tham số truyền vào là "van a" thì vẫn tìm được và in ra
 int Product::searchByName(string word) {
     string lowerWord = toLowerCase(word); 
@@ -177,11 +181,11 @@ return (cnt!= 0 ) ? 1:0;
 int Product::saveToFile(string fileName) {
         ofstream file(fileName);
         if (!file) {
-            cerr << "Error opening file for writing.\n";
+            cerr << "Error opening file product for writing.\n";
             return 0;
         }
         for (Product *p: prd) {
-            file << p->productID << "," << p->prdName << ","<< p->prdBrand<<"," << p->prdDetail << "," << p->unitPrice << "," << p->importPrice << "," << p->quantity<< "," << p->qntSell << endl;
+            file << p->productID << "," << p->prdName << ","<< p->prdBrand<<"," << p->prdDetail << "," << p->unitPrice << "," << p->importPrice << "," << p->quantity<< "," << p->qntSell <<"," << p->isDelete<< endl;
         }
         file.close();
         return 1;
@@ -196,7 +200,7 @@ int Product::loadFromFile(string fileName) {
         string line;
         while (getline(file, line)) {
             stringstream ss(line);
-            string id, name, brand, detail, price, importPrice,quantity,qntSell;
+            string id, name, brand, detail, price, importPrice,quantity,qntSell,isDelete;
             getline(ss, id, ',');
             getline(ss, name, ',');
             getline(ss, brand, ',');
@@ -204,7 +208,8 @@ int Product::loadFromFile(string fileName) {
             getline(ss, price, ',');
             getline(ss, importPrice, ',');
             getline(ss, quantity, ',');
-            getline(ss, qntSell);
+            getline(ss, qntSell, ',');
+            getline(ss, isDelete);
 
         // kiem tra gia tri co hop le hay khong
          try {
@@ -218,7 +223,8 @@ int Product::loadFromFile(string fileName) {
              if (importPriceValue < 0 || qntSellValue < 0) {
                 return 0; 
             }
-            Product *p = new  Product(name, brand, detail, priceValue,importPriceValue,quantityValue,qntSellValue);
+            bool del = (isDelete == "1")?  true: false;
+            Product *p = new  Product(name, brand, detail, priceValue,importPriceValue,quantityValue,qntSellValue, del);
             prd.push_back(p);
         }    catch (const std::invalid_argument& e) {
              return 0; // Trả về 0 nếu gặp lỗi khi chuyển đổi
@@ -239,6 +245,7 @@ Product* Product::getPrdByID(const string id){
 return nullptr; 
 }
 void Product::printInfor(){
+    if(this->isDelete) return;
  cout << left << setw(10) << "ID:" << setw(10) << productID << endl
     << left << setw(10) << "Name:" << setw(20) << prdName << endl
     << left << setw(10) << "Brand:" << setw(30) << prdBrand << endl
@@ -275,7 +282,7 @@ void Product::setQuantitySell(int qnt){
     this->qntSell = qnt;
 
 }
-void Product::setDelete(int del){
+void Product::setDelete(bool del){
     this->isDelete = del;
 
 }
@@ -285,6 +292,57 @@ long long Product::getImportPrice(){
 int Product::getQuantitySell(){
     return qntSell;
 }
-int Product::getDelete(){
+bool Product::getDelete(){
     return isDelete;
+}
+void Product::handleThisProduct(){
+    while (1)
+    {
+        system("cls");
+        cout << "--- Handle Product " << this->getPrdName() << " ---\n\n";
+        int chosse;
+        cout << "Select 1 action:\n";
+        cout << "1. View all information.\n";
+        cout << "2. Edit this product.\n";
+        cout << "3. Delete this product.\n";
+        cout << "0. Exit\n";
+        cout << "Choose an option: ";
+        cin >> chosse;
+        cin.ignore();
+        if (chosse == 0)
+        {
+            system("pause");
+            return;
+        }
+        switch (chosse)
+        {
+        case 1:
+        {
+            cout << "Product " << this->getPrdName() << "'s all infor.\n";
+            this->getInforToManager(this);
+            system("pause");
+            break;
+        }
+        case 2:
+        {
+            cout << "Edit Product " << this->getPrdName() << "\n";
+            Product::setInfor(this);
+            system("pause");
+            break;
+        }
+        case 3:
+        {
+            cout << "Delete Product " << this->getPrdName() << "'s invoice.\n";
+            this->deletePrd();
+            system("pause");
+            break;
+        }
+        default:
+        {
+            cout << "Invalid\n";
+            system("pause");
+            break;
+        }
+        }
+    }
 }
