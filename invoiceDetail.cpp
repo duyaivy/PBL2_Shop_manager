@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-cvector<InvoiceDetail*> InvoiceDetail::detail;
+vector<InvoiceDetail*> InvoiceDetail::detail;
 
 static string formatCurrency(long long number) {
     stringstream ss;
@@ -85,9 +85,36 @@ int InvoiceDetail:: saveToFile(string fileName){
         for (InvoiceDetail *dt : InvoiceDetail::detail) {
             file << dt->detailID << "," << dt->invoiceID << ","<< dt->prdID<<"," << dt->quantity << "," << dt->price<< endl;
         }
-        file.close();
+        file.close();   
         return 1;
 }
+
+void InvoiceDetail::increaseQuantity(string prdID){
+    Product *product = Product::getPrdByID(prdID);
+    int increment;
+    cout << "Enter increase quantity: ";
+    cin >> increment;
+    if (quantity + increment <= product->getQuantity()) {
+        this->setQuantity(quantity+increment);
+        cout << "Increment successfully\n";
+    } else {
+        cout << "Out of inventory\n";
+    }
+}
+
+void InvoiceDetail::decreaseQuantity(string prdID){
+    Product *product = Product::getPrdByID(prdID);
+    int decrement;
+    cout << "Enter decrease quantity: ";
+    cin >> decrement;
+    if (quantity - decrement >= 0) {
+        this->setQuantity(quantity+decrement);
+        cout << "Decrement successfully\n";
+    } else {
+        cout << "Fail Decrement\n";
+    }
+}
+
 int InvoiceDetail:: loadFromFile(string fileName){
     ifstream file(fileName);
         if (!file) {

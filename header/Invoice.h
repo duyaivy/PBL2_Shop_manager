@@ -3,6 +3,12 @@
 #include<iostream>
 #include <string>
 #include "vector.h"
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+// Thêm các thư viện tiêu chuẩn khác mà bạn cần
+
 using namespace std;
 
 class InvoiceDetail;
@@ -13,8 +19,7 @@ protected:
 string InvoiceID, staffID, customerID, time;
 long long totalPrice;
 static int nextInvoiceID;
-cvector<string> detailID;
-string generateInvoiceID(); 
+vector<string> detailID;
 
 public:
     Invoice(const string staffID ="unknown", const string customerID ="unknown", const string time= "01/01/2024", const string detailID="unknown");
@@ -27,13 +32,17 @@ public:
     static void display(); 
     static int saveToFile(string fileName);
     static int loadFromFile(string fileName);
+    bool containsDetail(const string &idDetail);
+    void removeDetail(const string &idDetail);
+    void modifyQuantity(string idDetail);
     string getInvoiceID();
     string getStaffID();
     string getCustomerID();
     string getTime();
-    cvector<string> getDetailID();
+    vector<string> getDetailID();
     long long getTotalPrice();
-    static cvector<Invoice*> inv;
+    static vector<Invoice*> inv;
+    static string generateInvoiceID(); 
 
 };
 

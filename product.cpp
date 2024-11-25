@@ -4,7 +4,8 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
- cvector<Product*> Product::prd;
+#include <vector>
+vector<Product*> Product::prd;
 
 string Product::generatePrdID() {
         
@@ -254,47 +255,6 @@ void Product::printInfor(){
     << left << setw(10) << "Quantity:" << setw(10) << quantity << endl
     << "----------------------------------------" << endl;
 }
-
-// get 
-string Product::getPrdID(){
-    return productID;
-    }
-string Product::getPrdName(){
-    return prdName;
-    }
-string Product::getPrdBranch(){
-    return prdBrand;
-    }
-string Product::getPrdDetail(){
-    return prdDetail;
-    }
-long long Product::getUnitPrice(){
-    return unitPrice;
-    }
-int Product::getQuantity(){
-    return quantity;
-    }
-    
-void Product::setImportPrice(long long price){
-    this->importPrice = price;
-}
-void Product::setQuantitySell(int qnt){
-    this->qntSell = qnt;
-
-}
-void Product::setDelete(bool del){
-    this->isDelete = del;
-
-}
-long long Product::getImportPrice(){
-    return importPrice;
-}
-int Product::getQuantitySell(){
-    return qntSell;
-}
-bool Product::getDelete(){
-    return isDelete;
-}
 void Product::handleThisProduct(){
     while (1)
     {
@@ -345,4 +305,49 @@ void Product::handleThisProduct(){
         }
         }
     }
+}
+
+// get 
+string Product::getPrdID(){
+    return productID;
+    }
+string Product::getPrdName(){
+    return prdName;
+    }
+string Product::getPrdBranch(){
+    return prdBrand;
+    }
+string Product::getPrdDetail(){
+    return prdDetail;
+    }
+long long Product::getUnitPrice(){
+    return unitPrice;
+    }
+int Product::getQuantity(){
+    return quantity;
+    }
+    
+void Product::setImportPrice(long long price){
+    this->importPrice = price;
+}
+void Product::setQuantitySell(int qnt){
+    this->qntSell = qnt;
+
+}
+void Product::setDelete(bool del){
+    this->isDelete = del;
+
+}
+long long Product::getImportPrice(){
+    return importPrice;
+}
+int Product::getQuantitySell(){
+    return qntSell;
+}
+bool Product::getDelete(){
+    return isDelete;
+}
+
+static vector<Product*> getProducts(){
+    return Product::prd;
 }

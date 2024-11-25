@@ -127,7 +127,7 @@ int run(){
                         // xu li sua dang nhap
                         if(curP->getRole() == "CUSTOMER"){
                             Customer *curCus = dynamic_cast<Customer*>(curP);
-                            // chua xu li
+                            curCus->handleThisCustomer();
                         }else{
                             Employee *curEmp = dynamic_cast<Employee*>(curP);
                             if (curP->getRole() == "MANAGER") {

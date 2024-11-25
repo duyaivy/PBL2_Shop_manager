@@ -9,6 +9,8 @@
 #include <iomanip>
 #include "./header/InvoiceDetail.h"
 #include "./header/global.h"
+#include "./header/Product.h"
+#include "./header/Invoice.h"
 
 using namespace std;
 static int nextCusID = 1;
@@ -18,7 +20,6 @@ Customer::Customer(const string &_name, const string &_phone, const string &_ema
 {
     this->ID = generateID();
 };
-
 void Customer::updateInfo()
 {
     int choice;
@@ -261,7 +262,7 @@ int Customer::loadFromFile(const string &fileName)
     file.close();
     return 1; // Trả về 1 nếu thành công
 }
-
+//hien thi thong tin ca nhan
 void Customer::display()
 {
     if(this->isDelete) return;
@@ -373,6 +374,52 @@ int Customer::addCaft(string cart)
     this->idCart.push_back(cart);
     return 1;
 }
+
+void Customer::addToCart(Product* product, int quantity) {
+    // Tạo một chi tiết hóa đơn mới.
+    InvoiceDetail* newDetail = new InvoiceDetail(this->getID(), quantity, product->getPrdID());
+
+    // Thêm ID của chi tiết hóa đơn vào giỏ hàng
+    idCart.push_back(newDetail->getDetailID());
+    InvoiceDetail::detail.push_back(newDetail);
+
+    cout << "Product is added to Cart!\n";
+}
+
+
+void Customer::customerProduct(Product* product) {
+    while (true) {
+        cout << "1. View detail product\n"
+             << "2. Add to card\n"
+             << "3. Back\n";
+        int choice;
+        cin >> choice;
+
+        switch (choice) {
+            case 1:
+                product->printInfor();
+                break;
+            case 2: {
+                cout << "Enter quantity: ";
+                int quantity;
+                cin >> quantity;
+                if (quantity > product->getQuantity()) {
+                    cout << "Quantity out of inventory!\n";
+                } else {
+                    addToCart(product, quantity);
+                }
+                break;
+            }
+            case 3:
+                return;
+            default:
+                cout << "Invalid choice!\n";
+        }
+        system("pause");
+        system("cls");
+    }
+}
+
 int Customer::getInforCart()
 {
     int cnt = 0;
@@ -385,8 +432,266 @@ int Customer::getInforCart()
             cnt++;
         }
     }
+    if (cnt==0){
+        return false;
+    }
+    int choice;
+    while (true) {
+        cout << "\n1. Increase Quantity\n2. Decrease Quantity\n3. Remove Item\n4. Back\nEnter your choice: ";
+        cin >> choice;
+
+        if (choice == 4) break;
+
+        string idDetail;
+        cout << "Enter ID of the item: ";
+        cin >> idDetail;
+
+        InvoiceDetail *detail = InvoiceDetail::getDetailByID(idDetail);
+        if (!detail) {
+            cout << "Invalid ID." << endl;
+            continue;
+        }
+
+        switch (choice) {
+            case 1:
+                detail->increaseQuantity(detail->getPrdID());
+                break;
+            case 2:
+                detail->decreaseQuantity(detail->getPrdID());
+                break;
+            case 3:
+                idCart.erase(remove(idCart.begin(), idCart.end(), idDetail), idCart.end());
+                cout << "Item removed from cart." << endl;
+                break;
+            default:
+                cout << "Invalid choice!" << endl;
+                break;
+        }
+    }
     return cnt != 0;
 }
+
+void Customer::viewAllProducts() {
+    while (true) {
+
+        cout << "Select an action:\n"
+             << "1. Sort products by brand\n"
+             << "2. Search product by name\n"
+             << "3. View details of a product\n"
+             << "4. Back\n";
+        int action;
+        cin >> action;
+
+        if (action==4){
+            handleThisCustomer();
+            return;
+        }
+
+        if (action == 1){
+            SortByBrand(); 
+        } else{
+            if (action==2){
+                searchProductByName();  
+            } else
+            if (action == 3){
+                searchByIdProduct();
+            }
+        }
+        system("pause");
+    }
+}
+
+void Customer::searchByIdProduct(){
+    cout << "List products: \n";
+    Product::displayAllPrdToManager(); 
+
+    cout << "Enter product ID to view details (or enter 0 to back): ";
+    string productId;
+    cin >> productId;
+    if (productId == "0") return;  
+    Product* selectedProduct = Product::getPrdByID(productId);
+    if (!selectedProduct) {
+        cout << "Product doesn't exist!\n";
+        return;
+    }
+    customerProduct(selectedProduct);  
+}
+
+void Customer::SortByBrand() {
+    cout << "Filter product by brand:\n"
+         << "1. Dell\n"
+         << "2. Asus\n"
+         << "3. Apple\n"
+         << "4. Phụ kiện\n";
+    int choice;
+    cout << "Enter choice: ";
+    cin >> choice;
+    string brand;
+    switch (choice) {
+        case 1: brand = "Dell"; break;
+        case 2: brand = "Asus"; break;
+        case 3: brand = "Apple"; break;
+        case 4: brand = "Phụ kiện"; break;
+        default: cout << "Invalid choice!\n"; return;
+    }
+    
+    vector<Product*> listProducts = Product::prd;
+    string lowerBrand = toLowerCase(brand); 
+    int cnt = 0;
+    for (Product* p : listProducts) {
+        string lowerName = toLowerCase(p->getPrdBranch());
+        if (lowerName.find(lowerBrand) != string::npos) {
+            cnt++; 
+            p->printInfor();
+        }
+    }
+    if (cnt == 0) {
+        cout << "No products found for this brand.\n";
+    }
+}
+void Customer::createInvoice() {
+    string invoiceId = Invoice::generateInvoiceID();
+    Invoice newInvoice(invoiceId, this->ID, "EP00001");
+
+    for (const string &idDetail : idCart) {
+        InvoiceDetail *detail = InvoiceDetail::getDetailByID(idDetail);
+        if (detail) {
+            newInvoice.getDetailID().push_back(detail->getDetailID());
+        }
+    }
+
+    // while (true) {
+        cout << "\nInvoice Details:" << endl;
+        newInvoice.display();
+
+        int choice;
+        cout << "\n1. Modify Quantity\n2. Remove Item\n3. Confirm Purchase\n4. Cancel\nEnter your choice: ";
+        cin >> choice;
+
+        if (choice == 4){
+            return;
+        }
+        string idDetail;
+        if (choice!=3){
+            cout << "Enter ID of the item: ";
+            cin >> idDetail;
+        }
+
+        // InvoiceDetail *invoiceDetail = InvoiceDetail::getDetailByID(idDetail);
+
+        switch (choice) {
+            case 1:
+                newInvoice.modifyQuantity(idDetail);
+                break;
+            case 2:
+                if (newInvoice.getDetailID().size() > 1) {
+                    idCart.erase(remove(idCart.begin(), idCart.end(), idDetail), idCart.end());
+                } else {
+                    cout << "Cannot remove the last item from the invoice!" << endl;
+                }
+                break;
+            case 3:
+                for (auto detail : newInvoice.getDetailID()) {
+                    InvoiceDetail *invoiceDetail = InvoiceDetail::getDetailByID(detail);
+                }
+                idCart.erase(remove_if(idCart.begin(), idCart.end(),
+                                       [&newInvoice](const string &id) {
+                                           return newInvoice.containsDetail(id);
+                                       }),
+                             idCart.end());
+                Invoice::inv.push_back(&newInvoice);
+                idInvoice.push_back(invoiceId);
+                proceedToPayment();
+                cout << "Purchase completed successfully!" << endl;
+                return;
+            default:
+                cout << "Invalid choice!" << endl;
+                break;
+        }
+    // }
+}
+void Customer:: processCashPayment() {
+    cout << "Vui long thanh toan so tien bang tien mat.\n";
+    cout << "Nhan 1 de xac nhan thanh toan: ";
+    int confirm;
+    cin >> confirm;
+    if (confirm == 1) {
+        cout << "Thanh toan bang tien mat thanh cong!\n";
+    } else {
+        cout << "Thanh toan da bi huy.\n";
+    }
+}
+void Customer:: processBankTransferPayment() {
+    cout << "Vui chuyen khoan vao so tai khoan sau:\n";
+    cout << "So tai khoan 123456789\n";
+    cout << "Ngân hang: XYZ bank\n";
+    cout << "Nhan 1 de xac nhan da chuyen khoan: ";
+    int confirm;
+    cin >> confirm;
+    if (confirm == 1) {
+        cout << "Thanh toan bang chuyen khoan thanh cong!\n";
+    } else {
+        cout << "Thanh toan da bi huy.\n";
+    }
+}
+
+void Customer::proceedToPayment() {
+    cout << "Choose payment method:\n";
+    cout << "1. Cash Payment\n";
+    cout << "2. Bank Transfer\n";
+    cout << "Your choice: ";
+    int choice;
+    cin >> choice;
+
+    if (cin.fail() || (choice != 1 && choice != 2)) {
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        cout << "Invalid choice. Payment canceled.\n";
+        return;
+    }
+
+    // Xác nhận trước khi thanh toán
+    cout << "Are you sure you want to proceed with payment? (y/n): ";
+    char confirm;
+    cin >> confirm;
+
+    if (confirm != 'y' && confirm != 'Y') {
+        cout << "Payment canceled." << endl;
+        return;
+    }
+
+    switch (choice) {
+        case 1:
+            processCashPayment();
+            break;
+        case 2:
+            processBankTransferPayment();
+            break;
+    }
+}
+
+
+void Customer::searchProductByName() {
+    cout << "Enter product name to search: ";
+    string keyword;
+    cin.ignore();
+    getline(cin, keyword);
+    
+    vector<Product*> listProducts = Product::prd;
+    string lowerWord = toLowerCase(keyword); 
+    int cnt = 0;
+    for (Product* p : listProducts) {
+        string lowerName = toLowerCase(p->getPrdName());
+        if (lowerName.find(lowerWord) != string::npos) {
+            cnt++; 
+            p->printInfor();  
+        }
+    }
+    if (cnt == 0) {
+        cout << "No products found matching your search.\n";
+    }
+}
+
 
 int Customer::handleThisCustomer()
 {
@@ -399,6 +704,7 @@ int Customer::handleThisCustomer()
         cout << "1. View all information.\n";
         cout << "2. View this Customer's shopping cart.\n";
         cout << "3. View this Customer's invoice.\n";
+        cout << "4. View all products.\n";
         cout << "0. Exit\n";
         cout << "Choose an option: ";
         cin >> chosse;
@@ -411,36 +717,42 @@ int Customer::handleThisCustomer()
         }
         switch (chosse)
         {
-        case 1:
-        {
-            cout << "Customer " << this->getName() << "'s all infor:\n";
-            this->viewAllInfor();
-            system("pause");
-            break;
-        }
-        case 2:
-        {
-            cout << "Customer " << this->getName() << "'s shopping cart:\n";
-            if (!this->getInforCart())
+            case 1:
             {
-                cout << "Customer " << this->getName() << "doesn't have shopping cart." << endl;
+                cout << "Customer " << this->getName() << "'s all infor:\n";
+                this->viewAllInfor();
+                system("pause");
+                break;
             }
-            system("pause");
-            break;
-        }
-        case 3:
-        {
-            cout << "Customer " << this->getName() << "'s invoice:\n";
-            this->getInforInvoice();
-            system("pause");
-            break;
-        }
-        default:
-        {
-            cout << "invalid\n";
-            system("pause");
-            break;
-        }
+            case 2:
+            {
+                cout << "Customer " << this->getName() << "'s shopping cart:\n";
+                if (!this->getInforCart())
+                {
+                    cout << "Customer " << this->getName() << "doesn't have shopping cart." << endl;
+                }
+                system("pause");
+                break;
+            }
+            case 3:
+            {
+                cout << "Customer " << this->getName() << "'s invoice:\n";
+                this->createInvoice();
+                system("pause");
+                break;
+            }
+            case 4:
+            {
+                this->viewAllProducts();
+                system("pause");
+                break;
+            }
+            default:
+            {
+                cout << "invalid\n";
+                system("pause");
+                break;
+            }
         }
     }
 }

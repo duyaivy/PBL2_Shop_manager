@@ -6,7 +6,7 @@
 #include <fstream>
 #include <sstream>
    
-cvector<Invoice*> Invoice::inv;
+vector<Invoice*> Invoice::inv;
 
 long long Invoice::calcTotalPrice(){
     long long total = 0;
@@ -177,6 +177,35 @@ ifstream file(fileName);
     file.close();
     return 1;
 }
+bool Invoice::containsDetail(const string &idDetail) {
+    for (int i=0;i<detailID.size();i++){
+        if (detailID[i] == idDetail){
+            return true;
+        }
+    }
+    return false;
+}
+void Invoice::modifyQuantity(string idDetail){
+    InvoiceDetail *invoice = InvoiceDetail::getDetailByID(idDetail);
+    if (!invoice){
+        cout << "Not found";
+        return;
+    }
+    int choice, quantity;
+    while (true)
+    {
+        cout << "1. Increase Quantity\n2. Decrease Quantity\n 3. Back\nChoose: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            invoice->increaseQuantity(invoice->getPrdID()); 
+        } else if (choice == 2) {
+            invoice->decreaseQuantity(invoice->getPrdID()); 
+        } else {
+            return;
+        }
+    }
+}
 
 //get
 string Invoice::getInvoiceID(){
@@ -193,7 +222,7 @@ return customerID;
 string Invoice::getTime(){
 return time;
 }
-cvector<string> Invoice::getDetailID(){
+vector<string> Invoice::getDetailID(){
 return detailID;
 }
 long long Invoice::getTotalPrice(){

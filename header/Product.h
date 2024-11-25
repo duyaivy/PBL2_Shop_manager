@@ -3,6 +3,7 @@
 #include<iostream>
 #include <string>
 #include "vector.h"
+#include<vector>
 using namespace std;
 // get infor 1; create 1 prd; set(update) 1 prd, search by ID, search by name, 
 // search by brand; show all; delete 1 prd ; input from csv; thay doi so luong 
@@ -49,7 +50,7 @@ public:
     bool getDelete();
     void handleThisProduct();
 
-    static cvector<Product*> prd;
+    static vector<Product*> prd;
 
 };
 #endif

@@ -3,6 +3,12 @@
 #include<iostream>
 #include <string>
 #include"vector.h"
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+
 using namespace std;
 
 class product;
@@ -23,13 +29,15 @@ public:
     void deleteDetail();
     static void displayDetail(); 
     static int saveToFile(string fileName);
+    void increaseQuantity(string prdID);
+    void decreaseQuantity(string prdID);
     static int loadFromFile(string fileName);
     string getDetailID();
     string getInvoiceID();
     string getPrdID();
     int getQuantity();
     long long getPrice();
-    static cvector<InvoiceDetail*> detail;
+    static vector<InvoiceDetail*> detail;
 };
 
 #endif
