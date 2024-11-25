@@ -2,12 +2,9 @@
 #define INVOICE_H
 #include<iostream>
 #include <string>
-#include "vector.h"
-#include <iostream>
-#include <vector>
+#include "Vector.h"
 #include <string>
 #include <algorithm>
-// Thêm các thư viện tiêu chuẩn khác mà bạn cần
 
 using namespace std;
 
@@ -19,7 +16,7 @@ protected:
 string InvoiceID, staffID, customerID, time;
 long long totalPrice;
 static int nextInvoiceID;
-vector<string> detailID;
+cvector<string> detailID;
 
 public:
     Invoice(const string staffID ="unknown", const string customerID ="unknown", const string time= "01/01/2024", const string detailID="unknown");
@@ -39,9 +36,10 @@ public:
     string getStaffID();
     string getCustomerID();
     string getTime();
-    vector<string> getDetailID();
+    cvector<string> getDetailID();
+    void setDetailID(cvector<string> detailID1);
     long long getTotalPrice();
-    static vector<Invoice*> inv;
+    static cvector<Invoice*> inv;
     static string generateInvoiceID(); 
 
 };

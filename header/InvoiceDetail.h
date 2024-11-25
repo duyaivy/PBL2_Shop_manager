@@ -2,13 +2,10 @@
 #define INVOICEDETAIL_H
 #include<iostream>
 #include <string>
-#include"vector.h"
+#include"Vector.h"
 #include <iostream>
-#include <vector>
 #include <string>
 #include <algorithm>
-
-
 using namespace std;
 
 class product;
@@ -37,7 +34,7 @@ public:
     string getPrdID();
     int getQuantity();
     long long getPrice();
-    static vector<InvoiceDetail*> detail;
+    static cvector<InvoiceDetail*> detail;
 };
 
 #endif

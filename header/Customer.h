@@ -9,7 +9,7 @@ class Customer : public Person {
 protected:
     string generateID() override;
     string address;
-    vector<string> idCart;
+    cvector<string> idCart;
     static int nextCusID;
 public:
     Customer(const string& _name, const string& _phone, const string& _email, const string& _password,const bool & _isDelete,const string& _address);

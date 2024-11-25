@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-vector<InvoiceDetail*> InvoiceDetail::detail;
+cvector<InvoiceDetail*> InvoiceDetail::detail;
 
 static string formatCurrency(long long number) {
     stringstream ss;
@@ -62,7 +62,7 @@ InvoiceDetail* InvoiceDetail:: getDetailByID(string id){
             return dt;
         }
     }
-return nullptr; 
+    return nullptr; 
 }
 void InvoiceDetail:: deleteDetail(){
  auto it = find(detail.begin(), detail.end(), this);

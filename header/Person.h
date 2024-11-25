@@ -1,7 +1,7 @@
 #ifndef PERSON_H
 #define PERSON_H
 #include<string>
-#include "vector.h"
+#include "Vector.h"
 #include "Invoice.h"
 using namespace std;
 

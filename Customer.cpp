@@ -379,13 +379,11 @@ void Customer::addToCart(Product* product, int quantity) {
     // Tạo một chi tiết hóa đơn mới.
     InvoiceDetail* newDetail = new InvoiceDetail(this->getID(), quantity, product->getPrdID());
 
-    // Thêm ID của chi tiết hóa đơn vào giỏ hàng
     idCart.push_back(newDetail->getDetailID());
     InvoiceDetail::detail.push_back(newDetail);
 
     cout << "Product is added to Cart!\n";
 }
-
 
 void Customer::customerProduct(Product* product) {
     while (true) {
@@ -535,7 +533,7 @@ void Customer::SortByBrand() {
         default: cout << "Invalid choice!\n"; return;
     }
     
-    vector<Product*> listProducts = Product::prd;
+    cvector<Product*> listProducts = Product::prd;
     string lowerBrand = toLowerCase(brand); 
     int cnt = 0;
     for (Product* p : listProducts) {
@@ -552,17 +550,19 @@ void Customer::SortByBrand() {
 void Customer::createInvoice() {
     string invoiceId = Invoice::generateInvoiceID();
     Invoice newInvoice(invoiceId, this->ID, "EP00001");
-
+    cvector<string> dt;
     for (const string &idDetail : idCart) {
         InvoiceDetail *detail = InvoiceDetail::getDetailByID(idDetail);
         if (detail) {
-            newInvoice.getDetailID().push_back(detail->getDetailID());
+            dt.push_back(detail->getDetailID());
         }
     }
+    newInvoice.setDetailID(dt);
 
     // while (true) {
         cout << "\nInvoice Details:" << endl;
-        newInvoice.display();
+        
+        newInvoice.getInfor(&newInvoice);
 
         int choice;
         cout << "\n1. Modify Quantity\n2. Remove Item\n3. Confirm Purchase\n4. Cancel\nEnter your choice: ";
@@ -611,65 +611,50 @@ void Customer::createInvoice() {
     // }
 }
 void Customer:: processCashPayment() {
-    cout << "Vui long thanh toan so tien bang tien mat.\n";
-    cout << "Nhan 1 de xac nhan thanh toan: ";
+    cout << "Vui lòng thanh toán số tiền bằng tiền mặt.\n";
+    cout << "Nhấn 1 để xác nhận thanh toán: ";
     int confirm;
     cin >> confirm;
     if (confirm == 1) {
-        cout << "Thanh toan bang tien mat thanh cong!\n";
+        cout << "Thanh toán bằng tiền mặt thành công!\n";
     } else {
-        cout << "Thanh toan da bi huy.\n";
+        cout << "Thanh toán đã bị hủy.\n";
     }
 }
 void Customer:: processBankTransferPayment() {
-    cout << "Vui chuyen khoan vao so tai khoan sau:\n";
-    cout << "So tai khoan 123456789\n";
-    cout << "Ngân hang: XYZ bank\n";
-    cout << "Nhan 1 de xac nhan da chuyen khoan: ";
+    cout << "Vui lòng chuyển khoản vào tài khoản sau:\n";
+    cout << "Số tài khoản: 123456789\n";
+    cout << "Ngân hàng: XYZ Bank\n";
+    cout << "Nhấn 1 để xác nhận đã chuyển khoản: ";
     int confirm;
     cin >> confirm;
     if (confirm == 1) {
-        cout << "Thanh toan bang chuyen khoan thanh cong!\n";
+        cout << "Thanh toán bằng chuyển khoản thành công!\n";
     } else {
-        cout << "Thanh toan da bi huy.\n";
+        cout << "Thanh toán đã bị hủy.\n";
     }
 }
 
 void Customer::proceedToPayment() {
-    cout << "Choose payment method:\n";
-    cout << "1. Cash Payment\n";
-    cout << "2. Bank Transfer\n";
-    cout << "Your choice: ";
+    cout << "Chọn phương thức thanh toán:\n";
+    cout << "1. Thanh toán bằng tiền mặt\n";
+    cout << "2. Thanh toán bằng chuyển khoản\n";
+    cout << "Lựa chọn của bạn: ";
     int choice;
     cin >> choice;
 
-    if (cin.fail() || (choice != 1 && choice != 2)) {
-        cin.clear();
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
-        cout << "Invalid choice. Payment canceled.\n";
-        return;
-    }
-
-    // Xác nhận trước khi thanh toán
-    cout << "Are you sure you want to proceed with payment? (y/n): ";
-    char confirm;
-    cin >> confirm;
-
-    if (confirm != 'y' && confirm != 'Y') {
-        cout << "Payment canceled." << endl;
-        return;
-    }
-
     switch (choice) {
-        case 1:
-            processCashPayment();
-            break;
-        case 2:
-            processBankTransferPayment();
-            break;
+    case 1:
+        processCashPayment();
+        break;
+    case 2:
+        processBankTransferPayment();
+        break;
+    default:
+        cout << "Lựa chọn không hợp lệ. Thanh toán đã bị hủy.\n";
+        break;
     }
 }
-
 
 void Customer::searchProductByName() {
     cout << "Enter product name to search: ";
@@ -677,7 +662,7 @@ void Customer::searchProductByName() {
     cin.ignore();
     getline(cin, keyword);
     
-    vector<Product*> listProducts = Product::prd;
+    cvector<Product*> listProducts = Product::prd;
     string lowerWord = toLowerCase(keyword); 
     int cnt = 0;
     for (Product* p : listProducts) {
@@ -695,6 +680,10 @@ void Customer::searchProductByName() {
 
 int Customer::handleThisCustomer()
 {
+    InvoiceDetail* newDetail = new InvoiceDetail(this->getID(), 3, "PD00010");
+
+    idCart.push_back(newDetail->getDetailID());
+    InvoiceDetail::detail.push_back(newDetail);
     while (1)
     {
         system("cls");

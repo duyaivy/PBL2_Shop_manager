@@ -5,8 +5,7 @@
 #include <algorithm>
 #include <fstream>
 #include <sstream>
-   
-vector<Invoice*> Invoice::inv;
+cvector<Invoice*> Invoice::inv;
 
 long long Invoice::calcTotalPrice(){
     long long total = 0;
@@ -24,12 +23,11 @@ long long Invoice::calcTotalPrice(){
 
 
 Invoice::Invoice( const string staffID , const string customerID , const string time, const string _detailID){
-this->InvoiceID = generateInvoiceID(); 
-this->staffID = staffID;
-this->customerID = customerID; 
-this->time = time;
-this->detailID.push_back(_detailID);
-this->totalPrice =this->calcTotalPrice();
+    this->InvoiceID = generateInvoiceID(); 
+    this->staffID = staffID;
+    this->customerID = customerID; 
+    this->time = time;
+    this->totalPrice =this->calcTotalPrice();
 }
 string Invoice::generateInvoiceID(){
         stringstream ss;
@@ -76,7 +74,9 @@ void Invoice::getInfor(const Invoice *inv){
         << left << setw(15) << "Invoice Detail:"<<endl
         << left << setw(30) << "Product Name" << setw(10)<<"Quantity" << setw(20)<<"Price" << endl;
         // duyet qua tung InvoiceDetail::detail id de lay ten san pham, so luong va gia tien tung InvoiceDetail::detail Invoice
+        cout << inv->detailID.size() << '\n';
         for(string dt : inv->detailID) {
+            cout << (InvoiceDetail::getDetailByID(dt)->getPrdID()) << '\n';
             string name = Product::getPrdByID((InvoiceDetail::getDetailByID(dt)->getPrdID()))->getPrdName();
             int number = InvoiceDetail::getDetailByID(dt)->getQuantity();
             long long money = InvoiceDetail::getDetailByID(dt)->getPrice();
@@ -108,8 +108,8 @@ void Invoice::deleteInvoice(){
 
 }
 void Invoice::display(){
-for(Invoice *Invoice: inv){
-    Invoice::getInfor(Invoice);
+    for(Invoice *Invoice: inv){
+        Invoice::getInfor(Invoice);
     }
 }
 
@@ -222,8 +222,11 @@ return customerID;
 string Invoice::getTime(){
 return time;
 }
-vector<string> Invoice::getDetailID(){
+cvector<string> Invoice::getDetailID(){
 return detailID;
+}
+void Invoice::setDetailID(cvector<string> detailID1){
+    detailID = detailID1;
 }
 long long Invoice::getTotalPrice(){
 return totalPrice;
