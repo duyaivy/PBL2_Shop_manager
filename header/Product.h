@@ -48,7 +48,7 @@ public:
     int getQuantitySell();
     bool getDelete();
     void handleThisProduct();
-
+    static int getPrdQuantity();
     static cvector<Product*> prd;
 
 };

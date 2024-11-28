@@ -12,26 +12,7 @@ string Product::generatePrdID() {
         ss <<"PD"<< setw(5) << setfill('0') << nextPrdID++; 
         return ss.str();
     }
-// format VND cho price
-// static string formatCurrency(long long number) {
-//     stringstream ss;
-//     string result;
-//     ss << number; 
-//     string strNumber = ss.str();
-//     int len = strNumber.length();
-//     int count = 0;
-//     for (int i = len - 1; i >= 0; --i) {
-//         result.insert(0, 1, strNumber[i]);
-//         count++;
-//         if (count == 3 && i != 0) {
-//             result.insert(0, 1, '.'); 
-//             count = 0;
-//         }
-//     }
-//     result += "VND";    
-//     return result;
-// }
-// chuyen prdID string -> int
+
 int convertStringToInt(const string& str) {
     string numberPart = str.substr(2);
     return stoi(numberPart);
@@ -345,4 +326,13 @@ void Product::handleThisProduct(){
         }
         }
     }
+}
+
+int Product::getPrdQuantity(){
+    int cnt = 0;
+    for(Product *p : Product::prd){
+        if(p->getDelete()) continue;
+        cnt++;
+    }
+    return cnt;
 }

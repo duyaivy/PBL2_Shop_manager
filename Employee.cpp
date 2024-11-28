@@ -10,8 +10,8 @@
 #include <algorithm>
 #include <ctime>
 
-Employee::Employee(const string &name, const string &phone, const string &email, const string &password, const string &role,const bool & _isDelete, const string &dayToWork)
-    : Person(name, phone, email, password, role,_isDelete)
+Employee::Employee(const string &name, const string &phone, const string &email, const string &password, const string &role, const bool &_isDelete, const string &dayToWork)
+    : Person(name, phone, email, password, role, _isDelete)
 {
     this->ID = generateID();
     this->dayToWork = dayToWork;
@@ -19,7 +19,8 @@ Employee::Employee(const string &name, const string &phone, const string &email,
 
 void Employee::display()
 {
-    if(this->isDelete) return;
+    if (this->isDelete)
+        return;
     cout << setw(10) << getID()
          << setw(30) << getName()
          << setw(30) << getEmail()
@@ -29,7 +30,8 @@ void Employee::display()
 }
 void Employee::viewAllInfor()
 {
-    if(this->isDelete) return;
+    if (this->isDelete)
+        return;
 
     cout << setw(20) << "ID: " << getID() << endl
          << setw(20) << "Full name: " << getName() << endl
@@ -211,7 +213,7 @@ void Employee::saveToFile(const string &filename)
         Employee *emp = dynamic_cast<Employee *>(p); // Chỉ lưu thông tin nhân viên
         if (emp)
         {
-            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << "," << emp->getPass() << "," << emp->getRole()<< "," << emp->getDelete() << "," << emp->getDayToWork();
+            file << emp->getID() << "," << emp->getName() << "," << emp->getPhone() << "," << emp->getEmail() << "," << emp->getPass() << "," << emp->getRole() << "," << emp->getDelete() << "," << emp->getDayToWork();
             // save invoice
             for (string invoice : emp->idInvoice)
             {
@@ -236,7 +238,7 @@ int Employee::loadFromFile(const string &filename)
     string line;
     while (getline(file, line))
     {
-        string id, name, phone, email, pass, role, isDel,day, invoice;
+        string id, name, phone, email, pass, role, isDel, day, invoice;
 
         stringstream ss(line);
         getline(ss, id, ',');
@@ -248,7 +250,7 @@ int Employee::loadFromFile(const string &filename)
         getline(ss, isDel, ',');
         getline(ss, day, ',');
         getline(ss, invoice, ',');
-
+        if(role=="MANAGER") continue;
         try
         {
             // Kiểm tra tính hợp lệ của tên (chỉ chứa chữ cái và khoảng trắng)
@@ -264,7 +266,7 @@ int Employee::loadFromFile(const string &filename)
                 throw invalid_argument("Invalid phone number format.");
             }
             bool del;
-            (isDel == "1") ? del = true: del = false;
+            (isDel == "1") ? del = true : del = false;
             Employee *newEmp = new Employee(name, phone, email, pass, role, del, day);
             Person::obj.push_back(newEmp);
             if (invoice != "")
@@ -423,7 +425,7 @@ void Employee::manageCustomers()
                 } while (Npassword != confirmPass);
 
                 // Thêm khách hàng vào danh sách
-                Customer *newCustomer = new Customer(Nname, Nphone, Nemail, Npassword,false, Naddress);
+                Customer *newCustomer = new Customer(Nname, Nphone, Nemail, Npassword, false, Naddress);
                 Person::obj.push_back(newCustomer);
                 cout << "Customer " << Nname << " added successfully.\n";
                 system("pause");
@@ -599,7 +601,7 @@ void Employee::manageEmployees()
                 }
             } while (Npassword != confirmPass);
             // Tạo đối tượng Employee mới và thêm vào danh sách
-            Employee *newEmployee = new Employee(Nname, Nphone, Nemail, Npassword, "SALES",true, day);
+            Employee *newEmployee = new Employee(Nname, Nphone, Nemail, Npassword, "SALES", true, day);
             Person::obj.push_back(newEmployee);
             cout << "Employee " << Nname << " added successfully.\n";
             system("pause");
@@ -1059,7 +1061,7 @@ int Employee::regisEmployee()
             }
         }
         // Customer( const string& _password, const string& _address)
-        Employee *e = new Employee(t_name, t_phone, t_email, password, "SALES", true,dayToWork);
+        Employee *e = new Employee(t_name, t_phone, t_email, password, "SALES", true, dayToWork);
         Person::obj.push_back(e);
         cout << "Register Employee Sucessfully!\nHere is your infor to Login\n";
         cout << left << setw(15) << "Phone:" << setw(10) << e->getPhone() << endl
@@ -1346,7 +1348,7 @@ void Employee::handleThisEmployee()
     }
 }
 int Employee::searchEmployeeByName()
-{   
+{
     string word;
     cout << "\nEnter employee name to search (0 to cancel): ";
     cin >> word;
@@ -1361,16 +1363,15 @@ int Employee::searchEmployeeByName()
     Employee::printTableHeader();
     for (Person *p : Person::obj)
     {
-        Employee *emp = dynamic_cast<Employee *>(p); 
+        Employee *emp = dynamic_cast<Employee *>(p);
 
         string lowerName = toLowerCase(p->getName());
-      
+
         if (emp && lowerName.find(lowerWord) != std::string::npos)
         {
             emp->display();
             found = true;
         }
-     
     }
     if (!found)
     {
@@ -1379,4 +1380,14 @@ int Employee::searchEmployeeByName()
         return 0;
     }
     return 1;
+}
+int Employee::getQuantityEmployee()
+{
+    int cnt = 0;
+    for (Person *p : Person::obj)
+    {
+        Employee *emp = dynamic_cast<Employee *>(p);
+        if (emp) cnt++;
+    }
+    return cnt;
 }

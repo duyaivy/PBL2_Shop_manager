@@ -200,3 +200,39 @@ long long Invoice::getTotalPrice(){
 return totalPrice;
 
 }
+ int Invoice::getInvoiceQuantity(){
+    return Invoice::inv.getSize();
+ }
+long long  Invoice::getRevenue(){
+    long long  money = 0;
+    for(Invoice *i : Invoice::inv){
+        money += i->getTotalPrice();
+    }
+    return money;
+}
+
+long long Invoice::calcProfit() {
+    long long moneyImport = 0;
+    for (Invoice* i : Invoice::inv) {
+        for (const std::string& de : i->getDetailID()) {
+            InvoiceDetail* detail = InvoiceDetail::getDetailByID(de);
+            if (detail) {
+                moneyImport += detail->getImportPrice();
+            }
+        }
+    }
+    return Invoice::getRevenue() - moneyImport;
+}
+// long long Invoice::calcProfit(){
+//     long long moneyImport = 0;
+//     for(Invoice *i : Invoice::inv){
+//         for(string de : i->getDetailID()){
+//             if(InvoiceDetail::getDetailByID(de)){
+
+//             moneyImport += InvoiceDetail::getDetailByID(de)->getImportPrice();
+//             }
+//         }
+//     }
+
+//     return Invoice::getRevenue() - moneyImport;
+//   }

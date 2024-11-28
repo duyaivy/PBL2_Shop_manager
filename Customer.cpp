@@ -223,7 +223,7 @@ int Customer::loadFromFile(const string &fileName)
         getline(ss, _address, ',');
         getline(ss, _id, ',');
 
-        try
+         try
         {   bool del;
             (_isDel== "1")? del = true: del = false;
             Customer *newCustomer = new Customer(_name, _phone, _email, _password, del,_address);
@@ -234,7 +234,7 @@ int Customer::loadFromFile(const string &fileName)
                 {
                     newCustomer->addCaft(_id);
                 }
-                else
+                else if(_id.find("IN") != string::npos)
                 {
                     newCustomer->addInvoice(_id);
                 }
@@ -246,7 +246,7 @@ int Customer::loadFromFile(const string &fileName)
                 {
                     newCustomer->addCaft(_id);
                 }
-                else
+                else if(_id.find("IN") != string::npos)
                 {
                     newCustomer->addInvoice(_id);
                 }
@@ -532,4 +532,37 @@ int Customer::searchCustomerByName()
         return 0;
     }
     return 1;
+}
+int Customer::getQuantityCus(){
+    int cnt = 0;
+    for (Person *p : Person::obj)
+    {
+        if(p->getDelete())continue;
+        Customer *cus = dynamic_cast<Customer *>(p);
+        if (cus) cnt++;
+    }
+    return cnt;
+}
+cvector<string> Customer::getCart(){
+    return this->idCart;
+}
+Customer* Customer::getMaxCus() {
+    Customer *maxCustomer = nullptr;
+    int maxCartSize = 0;
+
+    for (Person *person : Person::obj) {
+        if (person->getDelete()) continue;
+        Customer *customer = dynamic_cast<Customer *>(person);
+        if (customer) {
+            if (customer->getQuantityCart() > maxCartSize) {
+                maxCartSize =customer->getQuantityCart();
+                maxCustomer = customer;
+            }
+        }
+    }
+
+    return maxCustomer;
+}
+int Customer::getQuantityCart(){
+    return this->idCart.getSize();
 }

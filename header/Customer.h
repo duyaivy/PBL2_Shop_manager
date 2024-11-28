@@ -30,6 +30,10 @@ public:
     int getInforCart();
     static int searchCustomerById();
     static int searchCustomerByName();
+    static int getQuantityCus();
+    static Customer*getMaxCus();
+    int getQuantityCart();
+    
+    cvector<string>getCart();
 };
-
 #endif

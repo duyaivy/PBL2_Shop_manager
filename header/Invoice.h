@@ -34,7 +34,9 @@ public:
     cvector<string> getDetailID();
     long long getTotalPrice();
     static cvector<Invoice*> inv;
-
+    static long long  getRevenue();
+    static long long calcProfit();
+    static int getInvoiceQuantity();
 };
 
 #endif

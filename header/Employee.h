@@ -37,7 +37,7 @@ public:
     static void handleOnePrd();
     void handleThisEmployee();
     void viewAllInfor();
-
+    static int getQuantityEmployee();
 };
 #endif
 

@@ -1,15 +1,10 @@
-#include "./header/Employee.h"
-#include "./header/Product.h"
-#include "./header/Person.h"
-#include "./header/Customer.h"
-#include"./header/InvoiceDetail.h"
-#include"./header/Invoice.h"
+
+#include "./header/global.h"
 #include <iostream>
 
 using namespace std;
-int setUpDataBase();
+
 int run();
-int saveDataBase();
 int Product::nextPrdID = 1; 
 int Employee::nextEmpID = 1;
 int Customer::nextCusID = 1;
@@ -17,6 +12,9 @@ int InvoiceDetail::nextDetailID = 1;
 int Invoice::nextInvoiceID = 1;
 
 int main() {
+    // Employee(name, phone, email, pass, role, del, day);
+    Employee *e = new Employee("admin","000000","admin@email.com","123456","MANAGER",false,"12/10/2024");
+    Person::obj.push_back(e);
     run();
     
     
@@ -169,34 +167,4 @@ int run(){
         
     }
     return 0;
-}
-int setUpDataBase(){
-    if (!Product::loadFromFile(".\\csv\\products.csv") ) {
-        cerr << "Failed to load product data.\n";
-        return 0;
-    }
-    if (!InvoiceDetail::loadFromFile(".\\csv\\detail.csv")) {
-        cerr << "Failed to load invoice detail data.\n";
-        return 0;
-    }
-    if (!Invoice::loadFromFile(".\\csv\\invoice.csv")) {
-        cerr << "Failed to load invoice data.\n";
-        return 0;
-    }
-    if (!Employee::loadFromFile(".\\csv\\employees.csv") ) {
-        cerr << "Failed to load employee data.\n";
-        return 0;
-    }
-    if (!Customer::loadFromFile(".\\csv\\customers.csv") ) {
-        cerr << "Failed to load customer data.\n";
-        return 0;
-    }
-    return 1;
-}
-int saveDataBase(){
-    Product::saveToFile(".\\csv\\products.csv");
-    InvoiceDetail::saveToFile(".\\csv\\detail.csv");
-    Invoice::saveToFile(".\\csv\\Invoice.csv");
-    Employee::saveToFile(".\\csv\\employees.csv");
-    Customer::saveToFile(".\\csv\\customers.csv");
 }

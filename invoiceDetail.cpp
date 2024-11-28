@@ -138,3 +138,8 @@ int InvoiceDetail::getQuantity(){
 long long InvoiceDetail::getPrice(){
     return price;
 }
+
+   long long InvoiceDetail::getImportPrice(){
+        Product *p = Product::getPrdByID(this->prdID);
+        return p->getImportPrice();
+   }

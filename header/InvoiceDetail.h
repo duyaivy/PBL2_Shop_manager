@@ -29,6 +29,7 @@ public:
     string getPrdID();
     int getQuantity();
     long long getPrice();
+    long long getImportPrice();
     static cvector<InvoiceDetail*> detail;
 };
 
